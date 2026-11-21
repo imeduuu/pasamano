@@ -1,0 +1,71 @@
+/* Estética oscura de Trato. Colores con contraste WCAG 2.1 AA sobre el fondo #0b1020. */
+:root {
+  color-scheme: dark;
+  --color-bg: #0b1020;
+  --color-surface: #111833;
+  --color-surface-2: #18214a;
+  --color-border: #2c3768;
+  --color-text: #e8ebf5;
+  --color-muted: #a9b1c9;
+  --color-accent: #8fa8ff;
+  --color-on-accent: #0b1020;
+  --color-danger: #ff8a8a;
+  --color-success: #6ee7a8;
+  --color-focus: #ffd166;
+  --color-warning-bg: #3a2c05;
+  --color-warning-text: #ffe08a;
+  --color-warning-border: #6b5210;
+  --radius: 0.625rem;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  line-height: 1.5;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+a {
+  color: var(--color-accent);
+  text-underline-offset: 0.2em;
+}
+
+/* Foco siempre visible para navegación con teclado. */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.container {
+  width: min(72rem, 100%);
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

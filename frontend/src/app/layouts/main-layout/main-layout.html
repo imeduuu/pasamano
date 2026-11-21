@@ -1,0 +1,28 @@
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<aside class="demo-notice" role="note" aria-label="Aviso de demostración">
+  Proyecto de demostración · pagos en ambiente de pruebas de Transbank
+</aside>
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" routerLink="/" aria-label="Trato, ir al inicio"
+      >Trato<span aria-hidden="true">.</span></a
+    >
+    <nav class="site-nav" aria-label="Principal">
+      <ul>
+        <li><a routerLink="/">Inicio</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="contenido" class="container site-main" tabindex="-1">
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>© {{ year }} Trato · Proyecto de portafolio. No se realizan cobros reales.</p>
+  </div>
+</footer>

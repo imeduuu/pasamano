@@ -1,0 +1,55 @@
+# Plantilla procesada por envsubst al iniciar nginx (solo se reemplazan variables de entorno
+# definidas, como ${BACKEND_URL}; las variables propias de nginx se mantienen).
+server {
+  listen 80;
+  server_name _;
+  root /usr/share/nginx/html;
+  index index.html;
+  server_tokens off;
+  client_max_body_size 45m;
+
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header X-Frame-Options "DENY" always;
+  add_header Referrer-Policy "no-referrer" always;
+  add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+  add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https://webpay3gint.transbank.cl" always;
+
+  location = /healthz {
+    access_log off;
+    default_type text/plain;
+    return 200 "ok";
+  }
+
+  # La API se sirve desde el mismo origen: la cookie de refresco SameSite=Strict funciona sin CORS.
+  location /api/ {
+    proxy_pass ${BACKEND_URL};
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_read_timeout 60s;
+  }
+
+  location = /app-config.json {
+    expires -1;
+  }
+
+  location = /index.html {
+    expires -1;
+  }
+
+  # Recursos con hash en el nombre: caché larga.
+  location ~* \.(?:js|css|woff2?|png|jpg|jpeg|webp|svg|ico)$ {
+    expires 1y;
+    access_log off;
+    try_files $uri =404;
+  }
+
+  # Fallback de la SPA: toda ruta desconocida la resuelve el router de Angular.
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}
