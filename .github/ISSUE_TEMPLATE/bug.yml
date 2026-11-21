@@ -1,0 +1,52 @@
+name: Bug
+description: Reporta un comportamiento incorrecto.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Qué pasó
+      description: Describe el problema. No incluyas datos personales ni secretos.
+    validations:
+      required: true
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducir
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Comportamiento esperado
+    validations:
+      required: true
+  - type: input
+    id: correlation
+    attributes:
+      label: correlationId
+      description: Valor del header X-Correlation-Id o del campo correlationId del error, si lo tienes.
+  - type: dropdown
+    id: entorno
+    attributes:
+      label: Entorno
+      options: ["Local (docker compose)", "CI", "Demo"]
+    validations:
+      required: true
+  - type: dropdown
+    id: severidad
+    attributes:
+      label: Severidad
+      options: ["Bloqueante", "Crítica", "Mayor", "Menor"]
+    validations:
+      required: true
+  - type: input
+    id: requisito
+    attributes:
+      label: Requisito afectado
+      placeholder: RF-AUT-03, RN-04...

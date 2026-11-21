@@ -1,2 +1,17 @@
-# Auto detect text files and perform LF normalization
+# Normaliza fin de línea a LF en el repositorio
 * text=auto
+
+# Scripts que se ejecutan en contenedores Linux: siempre LF
+*.sh text eol=lf
+mvnw text eol=lf
+*.template text eol=lf
+Dockerfile text eol=lf
+
+# Scripts de Windows
+*.cmd text eol=crlf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.ico binary
+*.pdf binary

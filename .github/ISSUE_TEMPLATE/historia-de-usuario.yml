@@ -1,0 +1,65 @@
+name: Historia de usuario
+description: Nueva historia para el backlog (debe cumplir la Definition of Ready).
+title: "HU-XX: "
+labels: ["historia"]
+body:
+  - type: input
+    id: epica
+    attributes:
+      label: Épica
+      placeholder: Identidad, Publicaciones, Checkout...
+    validations:
+      required: true
+  - type: textarea
+    id: historia
+    attributes:
+      label: Historia
+      description: Formato «Como… quiero… para…».
+      placeholder: Como visitante, quiero registrarme con mi correo para poder comprar y vender.
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: Escenarios en formato Dado / Cuando / Entonces.
+      value: |
+        Escenario:
+          Dado que ...
+          Cuando ...
+          Entonces ...
+    validations:
+      required: true
+  - type: input
+    id: trazabilidad
+    attributes:
+      label: Requisitos vinculados
+      placeholder: RF-AUT-01, RN-01, CU-01, RNF-SEG-01
+    validations:
+      required: true
+  - type: dropdown
+    id: puntos
+    attributes:
+      label: Estimación (story points)
+      options: ["1", "2", "3", "5", "8"]
+    validations:
+      required: true
+  - type: textarea
+    id: dependencias
+    attributes:
+      label: Dependencias
+      placeholder: Ninguna / HU-xx
+  - type: textarea
+    id: bosquejo
+    attributes:
+      label: Bosquejo de pantalla
+      description: Enlace o imagen, si la historia tiene interfaz.
+  - type: checkboxes
+    id: dor
+    attributes:
+      label: Definition of Ready
+      options:
+        - label: Criterios de aceptación escritos y verificables.
+        - label: Estimada (las de 13 SP o más se dividen).
+        - label: Dependencias resueltas o planificadas en el mismo sprint.
+        - label: Requisitos y caso de uso vinculados.
