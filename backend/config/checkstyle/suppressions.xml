@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<!-- En pruebas se usan nombres descriptivos en snake_case y reglas ArchUnit como campos estáticos. -->
+<suppressions>
+  <suppress checks="MethodName|ConstantName|HideUtilityClassConstructor" files="[\/]src[\/]test[\/]"/>
+</suppressions>
