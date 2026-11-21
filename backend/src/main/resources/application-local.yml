@@ -1,0 +1,17 @@
+# Perfil local: desarrollo diario con docker compose (postgres, minio y mailpit en localhost).
+# Estos valores son solo para desarrollo; nunca se usan en el entorno demo.
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/trato}
+    username: ${DB_USERNAME:trato}
+    password: ${DB_PASSWORD:trato}
+
+trato:
+  identity:
+    jwt:
+      # Solo para desarrollo local. En demo se exige la variable de entorno JWT_SECRET.
+      secret: ${JWT_SECRET:solo-para-desarrollo-local-cambiar-en-demo-0123456789}
+
+logging:
+  level:
+    cl.trato: DEBUG

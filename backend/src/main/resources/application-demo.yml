@@ -1,0 +1,13 @@
+# Perfil demo: entorno público del portafolio. Todos los secretos llegan por variables de
+# entorno y los logs salen en JSON con el correlationId de cada petición (RNF-OBS-01).
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    root: INFO
+    cl.trato: INFO
+
+server:
+  error:
+    include-stacktrace: never

@@ -1,0 +1,31 @@
+# Perfil test: la base de datos la provee Testcontainers (@ServiceConnection), por lo que aquí
+# no se declaran credenciales. Flyway crea el esquema igual que en producción.
+spring:
+  datasource:
+    url: jdbc:postgresql://provided-by-testcontainers:5432/unused
+    username: unused
+    password: unused
+  jpa:
+    hibernate:
+      # En pruebas se valida que las entidades JPA calcen con las migraciones Flyway.
+      ddl-auto: validate
+  main:
+    banner-mode: off
+
+trato:
+  identity:
+    jwt:
+      secret: clave-de-pruebas-de-integracion-con-mas-de-32-bytes
+  rate-limit:
+    api:
+      # Las IT comparten IP; el límite general se prueba de forma unitaria.
+      capacity: 100000
+  mail:
+    retry:
+      initial-delay: 10ms
+
+logging:
+  level:
+    root: WARN
+    cl.trato: INFO
+    org.testcontainers: INFO
