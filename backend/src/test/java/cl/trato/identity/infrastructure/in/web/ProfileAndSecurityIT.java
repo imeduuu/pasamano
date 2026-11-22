@@ -103,9 +103,9 @@ class ProfileAndSecurityIT {
             post("/api/v1/me/seller-profile")
                 .header("Authorization", session.bearer())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"storeName\":\"Tienda Sur\",\"acceptSalesTerms\":true}"))
+                .content("{\"storeName\":\"Tienda Activacion\",\"acceptSalesTerms\":true}"))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.storeName").value("Tienda Sur"))
+        .andExpect(jsonPath("$.storeName").value("Tienda Activacion"))
         .andExpect(jsonPath("$.termsVersion").value("2026-11-20"))
         .andExpect(jsonPath("$.termsAcceptedAt").isNotEmpty());
   }
@@ -125,12 +125,12 @@ class ProfileAndSecurityIT {
             post("/api/v1/me/seller-profile")
                 .header("Authorization", session.bearer())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"storeName\":\"Tienda Sur\",\"acceptSalesTerms\":true}"))
+                .content("{\"storeName\":\"Tienda Publica\",\"acceptSalesTerms\":true}"))
         .andExpect(status().isCreated());
 
     mvc.perform(get("/api/v1/sellers/" + sellerId))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.storeName").value("Tienda Sur"))
+        .andExpect(jsonPath("$.storeName").value("Tienda Publica"))
         .andExpect(jsonPath("$.activatedAt").isNotEmpty())
         .andExpect(jsonPath("$.reputation").value("Vendedor nuevo"))
         .andExpect(jsonPath("$.completedSales").value(0))
@@ -174,7 +174,7 @@ class ProfileAndSecurityIT {
         .andExpect(status().isUnauthorized());
 
     IdentityApiClient.Session session = api.signIn(api.activeAccount());
-    String body = "{\"storeName\":\"Tienda Sur\",\"acceptSalesTerms\":true}";
+    String body = "{\"storeName\":\"Tienda Repetida\",\"acceptSalesTerms\":true}";
     mvc.perform(
             post("/api/v1/me/seller-profile")
                 .header("Authorization", session.bearer())

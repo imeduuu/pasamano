@@ -48,3 +48,4 @@ siguiente refinamiento. Cada punto puede confirmarse, cambiarse o pasar a un ADR
 | 29 | Executor de correos | Al definir `emailExecutor`, Spring Boot deja de crear su `applicationTaskExecutor` por defecto. No afecta al MVP, pero revisarlo si se usa `@Async` en otros módulos. |
 | 30 | E2E en CI | La etapa 8 (docker compose + Playwright en PR a `main`) aún no está en `ci.yml`; la prueba se ejecuta en local con `npm run e2e`. |
 | 31 | Navegadores E2E | Hoy solo Chromium (escritorio y 360 px). RNF-COM-01 pide además Firefox y WebKit. |
+| 32 | Slugs de categorías (RF-CAT-01) | Se normalizan a minúsculas ASCII, quitando diacríticos y sustituyendo secuencias no alfanuméricas por guiones; el índice único de PostgreSQL evita colisiones | El SRS no define la normalización; se busca URL legible y consistencia entre idiomas. |

@@ -94,6 +94,8 @@ public class SecurityConfiguration {
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/sellers/**")
                 .permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/categories")
+                .permitAll()
                 .requestMatchers("/api/v1/admin/**")
                 .hasRole("ADMIN")
                 .anyRequest()
