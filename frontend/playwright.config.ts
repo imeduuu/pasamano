@@ -19,9 +19,23 @@ export default defineConfig({
     timezoneId: 'America/Santiago',
     trace: 'retain-on-failure',
   },
+  // RNF-COM-01: validar Chromium, Firefox y WebKit.
+  // RNF-USA-01: validar cada navegador también a 360 px de ancho.
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    // RNF-USA-01: usable desde 360 px de ancho.
-    { name: 'movil', use: { ...devices['Desktop Chrome'], viewport: { width: 360, height: 780 } } },
+    {
+      name: 'chromium-mobile',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 360, height: 780 } },
+    },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    {
+      name: 'firefox-mobile',
+      use: { ...devices['Desktop Firefox'], viewport: { width: 360, height: 780 } },
+    },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    {
+      name: 'webkit-mobile',
+      use: { ...devices['Desktop Safari'], viewport: { width: 360, height: 780 } },
+    },
   ],
 });
