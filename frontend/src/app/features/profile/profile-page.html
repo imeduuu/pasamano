@@ -1,0 +1,140 @@
+<section class="auth-card" aria-labelledby="profile-title">
+  <h1 id="profile-title">Mi perfil</h1>
+  @if (auth.user(); as user) {
+    <p>
+      <strong>Correo:</strong> {{ user.email }}<br />
+      <strong>Miembro desde:</strong> {{ user.createdAt.slice(0, 10) }}
+    </p>
+  }
+
+  @if (profileMessage(); as message) {
+    <p class="form-success" role="status">{{ message }}</p>
+  }
+  @if (profileError(); as message) {
+    <p class="form-alert" role="alert">{{ message }}</p>
+  }
+
+  <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+    <div class="field">
+      <label for="profile-name">Nombre visible</label>
+      <input
+        id="profile-name"
+        type="text"
+        formControlName="name"
+        autocomplete="name"
+        [attr.aria-invalid]="showError(profileForm.controls.name)"
+        [attr.aria-describedby]="showError(profileForm.controls.name) ? 'profile-name-error' : null"
+      />
+      @if (showError(profileForm.controls.name)) {
+        <p class="field-error" id="profile-name-error">
+          {{ errorMessage(profileForm.controls.name, messages.name) }}
+        </p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="profile-region">Región</label>
+      <input
+        id="profile-region"
+        type="text"
+        formControlName="region"
+        autocomplete="address-level1"
+        [attr.aria-invalid]="showError(profileForm.controls.region)"
+        [attr.aria-describedby]="
+          showError(profileForm.controls.region) ? 'profile-region-error' : null
+        "
+      />
+      @if (showError(profileForm.controls.region)) {
+        <p class="field-error" id="profile-region-error">
+          {{ errorMessage(profileForm.controls.region, messages.region) }}
+        </p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="profile-commune">Comuna</label>
+      <input
+        id="profile-commune"
+        type="text"
+        formControlName="commune"
+        autocomplete="address-level2"
+        [attr.aria-invalid]="showError(profileForm.controls.commune)"
+        [attr.aria-describedby]="
+          showError(profileForm.controls.commune) ? 'profile-commune-error' : null
+        "
+      />
+      @if (showError(profileForm.controls.commune)) {
+        <p class="field-error" id="profile-commune-error">
+          {{ errorMessage(profileForm.controls.commune, messages.commune) }}
+        </p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="profile-photo">URL de tu foto (opcional)</label>
+      <input
+        id="profile-photo"
+        type="url"
+        formControlName="photoUrl"
+        [attr.aria-invalid]="showError(profileForm.controls.photoUrl)"
+        [attr.aria-describedby]="
+          showError(profileForm.controls.photoUrl) ? 'profile-photo-error' : null
+        "
+      />
+      @if (showError(profileForm.controls.photoUrl)) {
+        <p class="field-error" id="profile-photo-error">
+          {{ errorMessage(profileForm.controls.photoUrl, messages.photoUrl) }}
+        </p>
+      }
+    </div>
+
+    <button class="button" type="submit" [disabled]="saving()">Guardar cambios</button>
+  </form>
+</section>
+
+<section class="auth-card" aria-labelledby="password-title">
+  <h2 id="password-title">Cambiar contraseña</h2>
+  <p class="hint">Al cambiarla se cerrarán todas tus sesiones y deberás ingresar de nuevo.</p>
+  @if (passwordError(); as message) {
+    <p class="form-alert" role="alert">{{ message }}</p>
+  }
+  <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" novalidate>
+    <div class="field">
+      <label for="current-password">Contraseña actual</label>
+      <input
+        id="current-password"
+        type="password"
+        formControlName="currentPassword"
+        autocomplete="current-password"
+        [attr.aria-invalid]="showError(passwordForm.controls.currentPassword)"
+        [attr.aria-describedby]="
+          showError(passwordForm.controls.currentPassword) ? 'current-password-error' : null
+        "
+      />
+      @if (showError(passwordForm.controls.currentPassword)) {
+        <p class="field-error" id="current-password-error">
+          {{ errorMessage(passwordForm.controls.currentPassword, messages.currentPassword) }}
+        </p>
+      }
+    </div>
+    <div class="field">
+      <label for="new-password">Contraseña nueva</label>
+      <input
+        id="new-password"
+        type="password"
+        formControlName="newPassword"
+        autocomplete="new-password"
+        [attr.aria-invalid]="showError(passwordForm.controls.newPassword)"
+        [attr.aria-describedby]="
+          showError(passwordForm.controls.newPassword) ? 'new-password-error' : null
+        "
+      />
+      @if (showError(passwordForm.controls.newPassword)) {
+        <p class="field-error" id="new-password-error">
+          {{ errorMessage(passwordForm.controls.newPassword, messages.newPassword) }}
+        </p>
+      }
+    </div>
+    <button class="button button--ghost" type="submit">Cambiar contraseña</button>
+  </form>
+</section>

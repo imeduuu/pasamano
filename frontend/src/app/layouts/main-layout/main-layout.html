@@ -11,7 +11,34 @@
     >
     <nav class="site-nav" aria-label="Principal">
       <ul>
-        <li><a routerLink="/">Inicio</a></li>
+        <li>
+          <a
+            routerLink="/"
+            routerLinkActive="active"
+            ariaCurrentWhenActive="page"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >Inicio</a
+          >
+        </li>
+        @if (auth.isAuthenticated()) {
+          <li>
+            <a routerLink="/perfil" routerLinkActive="active" ariaCurrentWhenActive="page">
+              {{ auth.user()?.name ?? 'Mi perfil' }}
+            </a>
+          </li>
+          <li>
+            <button type="button" class="link-button" (click)="logout()">Cerrar sesión</button>
+          </li>
+        } @else {
+          <li>
+            <a routerLink="/ingresar" routerLinkActive="active" ariaCurrentWhenActive="page"
+              >Ingresar</a
+            >
+          </li>
+          <li>
+            <a class="button" routerLink="/registro">Crear cuenta</a>
+          </li>
+        }
       </ul>
     </nav>
   </div>
@@ -23,6 +50,9 @@
 
 <footer class="site-footer">
   <div class="container">
-    <p>© {{ year }} Trato · Proyecto de portafolio. No se realizan cobros reales.</p>
+    <p>
+      © {{ year }} Trato · Proyecto de portafolio. No se realizan cobros reales ·
+      <a routerLink="/terminos">Términos</a> · <a routerLink="/privacidad">Privacidad</a>
+    </p>
   </div>
 </footer>
