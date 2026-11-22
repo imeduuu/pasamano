@@ -7,7 +7,7 @@ siguiente refinamiento. Cada punto puede confirmarse, cambiarse o pasar a un ADR
 
 | # | Tema | Decisión | Motivo |
 | --- | --- | --- | --- |
-| 1 | Versión de Angular | Angular 22 (activa) en vez de 21 (LTS) | El SRS dice «LTS vigente»; la 22 es la versión estable actual y tiene la ventana de soporte más larga. |
+| 1 | Versión de Angular | Angular 22 (activa) | Resuelta (2026-11-21): se mantiene Angular 22, según la decisión de plataforma del proyecto. |
 | 2 | Imagen de MinIO | `cgr.dev/chainguard/minio` | MinIO dejó de publicar imágenes comunitarias en Docker Hub. |
 | 3 | JRE del backend | JRE recortado con `jlink` sobre Alpine (252 MB) | La imagen `eclipse-temurin:21-jre-alpine` dejaba la imagen en 423 MB y RNF-POR-03 exige < 300 MB. |
 | 4 | Lombok | No se usa | Records y clases simples bastan; se evita otro procesador de anotaciones. |
@@ -29,12 +29,12 @@ siguiente refinamiento. Cada punto puede confirmarse, cambiarse o pasar a un ADR
 | 15 | Lista de contraseñas comunes | 2.336 entradas de ≥ 10 caracteres (SecLists, licencia MIT) más variantes chilenas, en `backend/src/main/resources/security/common-passwords.txt` | Por debajo de 10 caracteres ya las rechaza el largo mínimo. |
 | 16 | Bloqueo por intentos | Al quinto intento fallido se bloquea 15 min y el contador vuelve a 0. Se informa el bloqueo (423) aunque eso revele que la cuenta existe | CU-02 2b pide informarlo. |
 | 17 | Orden de las comprobaciones al ingresar | Primero el bloqueo; luego la contraseña; solo con la contraseña correcta se informa «no verificada» (403) o «suspendida» (403) | No revelar el estado de cuentas ajenas. |
-| 18 | Reenvío de verificación | Nuevo endpoint `POST /api/v1/auth/verify/resend` (responde siempre 202) | CU-01 8a y CU-02 2c lo piden, pero no está en la tabla de la API (§8.8). |
-| 19 | Cambio de contraseña (RF-AUT-07) | `POST /api/v1/me/password`; revoca todos los tokens de refresco y pide ingresar de nuevo | No figura en §8.8; cerrar todas las sesiones es lo más simple y seguro. |
+| 18 | Reenvío de verificación | Se acepta `POST /api/v1/auth/verify/resend` (responde siempre 202) | Resuelta (2026-11-21): CU-01 8a y CU-02 2c requieren el reenvío de verificación. |
+| 19 | Cambio de contraseña (RF-AUT-07) | Se acepta `POST /api/v1/me/password`; revoca todos los tokens de refresco y pide ingresar de nuevo | Resuelta (2026-11-21): cerrar todas las sesiones es la opción más simple y segura. |
 | 20 | Usuarios no verificados que recuperan la contraseña | Pueden hacerlo, pero siguen pendientes de verificación | El SRS no lo define. Los suspendidos no reciben enlace. |
 | 21 | Token de refresco | Valor opaco de 256 bits; cookie `trato_refresh`, `Path=/api/v1/auth`; el logout revoca la familia completa | ADR-002. |
 | 22 | Mensaje de registro | El mismo texto y el mismo código 202 exista o no el correo | CU-01 3b. |
-| 23 | Reintentos de correo | 3 intentos en total (1 + 2 reintentos), espera de 2 s ×2 | RNF-FIA-04 dice «3 intentos»; el pedido decía «3 reintentos»: se siguió el SRS. |
+| 23 | Reintentos de correo | 3 intentos en total (1 + 2 reintentos), espera de 2 s ×2 | Resuelta (2026-11-21): RNF-FIA-04 especifica 3 intentos en total. |
 | 24 | Tokens en los eventos | `VerificationEmailRequested` y `PasswordResetRequested` llevan el token en claro solo en memoria; su `toString` lo oculta | El correo necesita el enlace y en la base solo se guarda el hash. Si el proceso cae antes de enviar, el usuario pide el reenvío (ADR-008). |
 | 25 | Textos legales | Páginas `/terminos` y `/privacidad` breves, versión `2026-11-20` | Falta redactar los documentos definitivos (RNF-LEG-01). |
 
@@ -42,7 +42,7 @@ siguiente refinamiento. Cada punto puede confirmarse, cambiarse o pasar a un ADR
 
 | # | Tema | Pendiente |
 | --- | --- | --- |
-| 26 | Rate limiting en memoria | Con varias réplicas el límite es por instancia (RNF-ESC-01). Evaluar Bucket4j con PostgreSQL o Redis (F2). |
+| 26 | Rate limiting en memoria | Se mantiene en memoria para el MVP (ver ADR-009). | Resuelta (2026-11-21): se acepta el límite por instancia en el MVP; la evolución queda documentada en ADR-009. |
 | 27 | IP del cliente | Se confía en `X-Forwarded-For` (`forward-headers-strategy: framework`). nginx lo sobrescribe con la IP real, pero si el backend se expone directo (puerto 8080) un cliente puede falsearlo. En demo, exponer solo el proxy. |
 | 28 | Revocación del JWT de acceso | No existe lista negra: un JWT robado vale hasta 15 min, incluso si se suspende la cuenta (ADR-002). |
 | 29 | Executor de correos | Al definir `emailExecutor`, Spring Boot deja de crear su `applicationTaskExecutor` por defecto. No afecta al MVP, pero revisarlo si se usa `@Async` en otros módulos. |

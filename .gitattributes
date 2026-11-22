@@ -1,5 +1,5 @@
-# Normaliza fin de línea a LF en el repositorio
-* text=auto
+# Normaliza fin de línea a LF en el repositorio y en el working tree
+* text=auto eol=lf
 
 # Scripts que se ejecutan en contenedores Linux: siempre LF
 *.sh text eol=lf
@@ -9,6 +9,8 @@ Dockerfile text eol=lf
 
 # Scripts de Windows
 *.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
 
 # Binarios
 *.png binary

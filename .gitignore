@@ -1,6 +1,9 @@
 # SRS interno: no publicar el documento del proyecto
 /SRS_Trato_Sprint0.pdf
 
+# Instrucciones locales para Claude Code: no se versionan
+/CLAUDE.md
+
 # Java / Maven / Gradle
 **/target/
 **/build/
