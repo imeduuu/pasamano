@@ -29,7 +29,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.time.Clock;
 import java.time.Duration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -63,7 +62,6 @@ class AuthController {
   private final ResetPassword resetPassword;
   private final RefreshTokenCookies cookies;
   private final LoginRateLimiter loginRateLimiter;
-  private final Clock clock;
 
   AuthController(
       RegisterUser registerUser,
@@ -75,8 +73,7 @@ class AuthController {
       RequestPasswordReset requestPasswordReset,
       ResetPassword resetPassword,
       RefreshTokenCookies cookies,
-      LoginRateLimiter loginRateLimiter,
-      Clock clock) {
+      LoginRateLimiter loginRateLimiter) {
     this.registerUser = registerUser;
     this.verifyEmail = verifyEmail;
     this.resendVerification = resendVerification;
@@ -87,7 +84,6 @@ class AuthController {
     this.resetPassword = resetPassword;
     this.cookies = cookies;
     this.loginRateLimiter = loginRateLimiter;
-    this.clock = clock;
   }
 
   @PostMapping("/register")
@@ -177,7 +173,7 @@ class AuthController {
   }
 
   private ResponseEntity<TokenResponse> withSession(AuthSession session) {
-    var now = clock.instant();
+    var now = session.issuedAt();
     long expiresIn = Duration.between(now, session.accessTokenExpiresAt()).toSeconds();
     return ResponseEntity.status(HttpStatus.OK)
         .header(

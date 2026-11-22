@@ -28,6 +28,7 @@ public class SessionIssuer {
     RefreshToken refresh = RefreshToken.startFamily(user.id(), generator.hash(raw), now);
     refreshTokens.save(refresh);
     AccessTokenIssuer.IssuedAccessToken access = accessTokens.issue(user, now);
-    return new AuthSession(user.id(), access.token(), access.expiresAt(), raw, refresh.expiresAt());
+    return new AuthSession(
+        user.id(), access.token(), access.expiresAt(), raw, refresh.expiresAt(), now);
   }
 }

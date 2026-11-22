@@ -11,13 +11,15 @@ import java.time.Instant;
  * @param accessTokenExpiresAt vencimiento del JWT
  * @param refreshToken token de refresco en claro, solo para la cookie HttpOnly
  * @param refreshTokenExpiresAt vencimiento del token de refresco (7 días)
+ * @param issuedAt instante de emisión, base para calcular vigencias en la respuesta
  */
 public record AuthSession(
     UserId userId,
     String accessToken,
     Instant accessTokenExpiresAt,
     String refreshToken,
-    Instant refreshTokenExpiresAt) {
+    Instant refreshTokenExpiresAt,
+    Instant issuedAt) {
 
   @Override
   public String toString() {

@@ -68,6 +68,6 @@ public class RefreshSession {
     refreshTokens.save(rotation.next());
     AccessTokenIssuer.IssuedAccessToken access = accessTokens.issue(user, now);
     return new AuthSession(
-        user.id(), access.token(), access.expiresAt(), nextRaw, rotation.next().expiresAt());
+        user.id(), access.token(), access.expiresAt(), nextRaw, rotation.next().expiresAt(), now);
   }
 }
