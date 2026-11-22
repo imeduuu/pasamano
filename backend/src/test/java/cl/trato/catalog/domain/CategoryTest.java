@@ -3,6 +3,7 @@ package cl.trato.catalog.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import cl.trato.shared.domain.exception.DomainValidationException;
 import org.junit.jupiter.api.Test;
 
 /** Reglas de categorías de RF-CAT-01. */
@@ -27,14 +28,14 @@ class CategoryTest {
     Category child = Category.create("Cocina", 1, true, root);
 
     assertThatThrownBy(() -> Category.create("Ollas", 1, true, child))
-        .isInstanceOf(IllegalArgumentException.class);
+        .isInstanceOf(DomainValidationException.class);
   }
 
   @Test
   void rejects_blank_names_and_negative_order() {
     assertThatThrownBy(() -> Category.create("  ", 0, true, null))
-        .isInstanceOf(IllegalArgumentException.class);
+        .isInstanceOf(DomainValidationException.class);
     assertThatThrownBy(() -> Category.create("Hogar", -1, true, null))
-        .isInstanceOf(IllegalArgumentException.class);
+        .isInstanceOf(DomainValidationException.class);
   }
 }

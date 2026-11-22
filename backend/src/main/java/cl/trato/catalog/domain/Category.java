@@ -1,5 +1,6 @@
 package cl.trato.catalog.domain;
 
+import cl.trato.shared.domain.exception.DomainValidationException;
 import java.text.Normalizer;
 import java.util.Locale;
 import java.util.UUID;
@@ -14,17 +15,20 @@ public record Category(
 
   public static Category create(String name, int sortOrder, boolean active, Category parent) {
     if (name == null || name.isBlank()) {
-      throw new IllegalArgumentException("El nombre de la categoría es obligatorio.");
+      throw new DomainValidationException(
+          "INVALID_CATEGORY", "El nombre de la categoría es obligatorio.");
     }
     if (sortOrder < 0) {
-      throw new IllegalArgumentException("El orden no puede ser negativo.");
+      throw new DomainValidationException("INVALID_CATEGORY", "El orden no puede ser negativo.");
     }
     if (parent != null && parent.parentId() != null) {
-      throw new IllegalArgumentException("Una categoría de nivel 2 no puede tener hijas.");
+      throw new DomainValidationException(
+          "INVALID_CATEGORY", "Una categoría de nivel 2 no puede tener hijas.");
     }
     String slug = slugify(name);
     if (slug.isBlank()) {
-      throw new IllegalArgumentException("El nombre debe producir un slug válido.");
+      throw new DomainValidationException(
+          "INVALID_CATEGORY", "El nombre debe producir un slug válido.");
     }
     return new Category(
         UUID.randomUUID(),
@@ -33,6 +37,15 @@ public record Category(
         sortOrder,
         active,
         parent == null ? null : parent.id());
+  }
+
+  public Category update(String newName, int newSortOrder, UUID newParentId) {
+    Category updated = create(newName, newSortOrder, active, null);
+    return new Category(id, updated.name(), updated.slug(), newSortOrder, active, newParentId);
+  }
+
+  public Category deactivate() {
+    return new Category(id, name, slug, sortOrder, false, parentId);
   }
 
   private static String slugify(String value) {

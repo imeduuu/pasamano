@@ -13,7 +13,7 @@ class GetCategoriesTest {
   void returns_roots_with_their_active_children() {
     Category root = Category.create("Hogar", 1, true, null);
     Category child = Category.create("Cocina", 1, true, root);
-    GetCategories query = new GetCategories(() -> List.of(root, child));
+    GetCategories query = new GetCategories(repository(List.of(root, child)));
 
     assertThat(query.execute())
         .containsExactly(
@@ -28,8 +28,63 @@ class GetCategoriesTest {
   @Test
   void returns_empty_tree_when_no_categories_are_active() {
     Category inactive = Category.create("Oculta", 1, false, null);
-    CategoryRepository repository = () -> List.of(inactive);
+    CategoryRepository repository =
+        new CategoryRepository() {
+          @Override
+          public List<Category> findAllActive() {
+            return List.of(inactive);
+          }
+
+          @Override
+          public java.util.Optional<Category> findById(java.util.UUID id) {
+            return java.util.Optional.empty();
+          }
+
+          @Override
+          public boolean existsBySlug(String slug) {
+            return false;
+          }
+
+          @Override
+          public boolean hasChildren(java.util.UUID id) {
+            return false;
+          }
+
+          @Override
+          public Category save(Category category) {
+            return category;
+          }
+        };
 
     assertThat(new GetCategories(repository).execute()).isEmpty();
+  }
+
+  private static CategoryRepository repository(List<Category> values) {
+    return new CategoryRepository() {
+      @Override
+      public List<Category> findAllActive() {
+        return values;
+      }
+
+      @Override
+      public java.util.Optional<Category> findById(java.util.UUID id) {
+        return java.util.Optional.empty();
+      }
+
+      @Override
+      public boolean existsBySlug(String slug) {
+        return false;
+      }
+
+      @Override
+      public boolean hasChildren(java.util.UUID id) {
+        return false;
+      }
+
+      @Override
+      public Category save(Category category) {
+        return category;
+      }
+    };
   }
 }
