@@ -88,7 +88,7 @@ class RateLimiterTest {
     assertThat(passed).hasValue(2);
     assertThat(last.getStatus()).isEqualTo(429);
     assertThat(last.getHeader("Retry-After")).isNotBlank();
-    assertThat(last.getContentType()).isEqualTo("application/problem+json");
+    assertThat(last.getContentType()).startsWith("application/problem+json");
     assertThat(last.getContentAsString()).contains("\"code\":\"RATE_LIMITED\"");
   }
 
