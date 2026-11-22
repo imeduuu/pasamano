@@ -2,6 +2,7 @@ package cl.trato.identity.infrastructure.out.security;
 
 import cl.trato.identity.application.port.PasswordHasher;
 import cl.trato.identity.domain.PasswordHash;
+import java.nio.charset.StandardCharsets;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class BCryptPasswordHasher implements PasswordHasher {
 
   public static final int STRENGTH = 12;
+  private static final int MAX_BYTES = 72;
 
   private final BCryptPasswordEncoder encoder;
   private final String dummyHash;
@@ -30,7 +32,8 @@ public class BCryptPasswordHasher implements PasswordHasher {
 
   @Override
   public boolean matches(String rawPassword, PasswordHash hash) {
-    if (rawPassword == null) {
+    // BCrypt solo considera 72 bytes: una contraseña más larga nunca debe coincidir por truncado.
+    if (rawPassword == null || rawPassword.getBytes(StandardCharsets.UTF_8).length > MAX_BYTES) {
       return false;
     }
     try {
