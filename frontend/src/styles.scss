@@ -58,6 +58,131 @@ a {
   padding-inline: 1rem;
 }
 
+/* ---------- Formularios accesibles ---------- */
+.auth-card {
+  max-width: 30rem;
+  margin: 1rem auto;
+  padding: 1.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+
+  h1 {
+    margin-top: 0;
+    font-size: 1.6rem;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+
+  label {
+    font-weight: 600;
+  }
+
+  .hint {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='url'] {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 0.4rem;
+
+  &[aria-invalid='true'] {
+    border-color: var(--color-danger);
+  }
+}
+
+.checkbox {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+
+  input {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.2rem;
+  }
+}
+
+.field-error {
+  color: var(--color-danger);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.form-alert {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  background: rgb(255 138 138 / 8%);
+}
+
+.form-success {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
+  background: rgb(110 231 168 / 8%);
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border: 0;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  &--block {
+    width: 100%;
+  }
+
+  &--ghost {
+    color: var(--color-accent);
+    background: transparent;
+    border: 1px solid var(--color-border);
+  }
+}
+
+.form-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
 .visually-hidden {
   position: absolute !important;
   width: 1px;
