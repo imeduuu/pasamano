@@ -21,6 +21,16 @@
           >
         </li>
         @if (auth.isAuthenticated()) {
+          @if (auth.user()?.roles?.includes('ADMIN')) {
+            <li>
+              <a
+                routerLink="/admin/categorias"
+                routerLinkActive="active"
+                ariaCurrentWhenActive="page"
+                >Categorías</a
+              >
+            </li>
+          }
           <li>
             <a
               [routerLink]="auth.user()?.seller ? '/mis-publicaciones' : '/activar-perfil-vendedor'"

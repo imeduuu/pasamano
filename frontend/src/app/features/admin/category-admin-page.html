@@ -1,0 +1,98 @@
+<section class="auth-card" aria-labelledby="category-admin-title">
+  <h1 id="category-admin-title">Administrar categorías</h1>
+  @if (error(); as message) {
+    <p class="form-alert" role="alert">{{ message }}</p>
+  }
+
+  <form [formGroup]="createForm" (ngSubmit)="create()" class="field">
+    <label for="new-category-name">Nueva categoría</label>
+    <input id="new-category-name" formControlName="name" maxlength="80" required />
+    <label for="new-category-parent">Categoría principal</label>
+    <select id="new-category-parent" formControlName="parentId">
+      <option value="">Nivel principal</option>
+      @for (category of categories(); track category.id) {
+        <option [value]="category.id">{{ category.name }}</option>
+      }
+    </select>
+    <button class="button" type="submit">Crear categoría</button>
+  </form>
+
+  <ul aria-label="Árbol de categorías">
+    @for (category of categories(); track category.id) {
+      <li class="field">
+        <strong>Nivel 1</strong>
+        <label [for]="'name-' + category.id">Nombre</label>
+        <input
+          [id]="'name-' + category.id"
+          [value]="edit(category).name"
+          (input)="setEdit(category, 'name', $any($event.target).value)"
+        />
+        <label [for]="'order-' + category.id">Orden</label>
+        <input
+          [id]="'order-' + category.id"
+          type="number"
+          min="0"
+          [value]="edit(category).sortOrder"
+          (input)="setEdit(category, 'sortOrder', $any($event.target).value)"
+        />
+        <label [for]="'edit-reason-' + category.id">Motivo del cambio (opcional)</label>
+        <input
+          [id]="'edit-reason-' + category.id"
+          [value]="edit(category).reason"
+          (input)="setEdit(category, 'reason', $any($event.target).value)"
+        />
+        <button class="button button--ghost" type="button" (click)="save(category)">
+          Guardar cambios
+        </button>
+        <label [for]="'deactivate-reason-' + category.id">Motivo para desactivar</label>
+        <input
+          [id]="'deactivate-reason-' + category.id"
+          [value]="reason(category.id)"
+          (input)="setReason(category.id, $any($event.target).value)"
+        />
+        <button class="button button--ghost" type="button" (click)="deactivate(category)">
+          Desactivar
+        </button>
+        <ul>
+          @for (child of category.children; track child.id) {
+            <li class="field">
+              <strong>Nivel 2 · {{ category.name }}</strong>
+              <label [for]="'name-' + child.id">Nombre</label>
+              <input
+                [id]="'name-' + child.id"
+                [value]="edit(child).name"
+                (input)="setEdit(child, 'name', $any($event.target).value)"
+              />
+              <label [for]="'order-' + child.id">Orden</label>
+              <input
+                [id]="'order-' + child.id"
+                type="number"
+                min="0"
+                [value]="edit(child).sortOrder"
+                (input)="setEdit(child, 'sortOrder', $any($event.target).value)"
+              />
+              <label [for]="'edit-reason-' + child.id">Motivo del cambio (opcional)</label>
+              <input
+                [id]="'edit-reason-' + child.id"
+                [value]="edit(child).reason"
+                (input)="setEdit(child, 'reason', $any($event.target).value)"
+              />
+              <button class="button button--ghost" type="button" (click)="save(child)">
+                Guardar cambios
+              </button>
+              <label [for]="'deactivate-reason-' + child.id">Motivo para desactivar</label>
+              <input
+                [id]="'deactivate-reason-' + child.id"
+                [value]="reason(child.id)"
+                (input)="setReason(child.id, $any($event.target).value)"
+              />
+              <button class="button button--ghost" type="button" (click)="deactivate(child)">
+                Desactivar
+              </button>
+            </li>
+          }
+        </ul>
+      </li>
+    }
+  </ul>
+</section>

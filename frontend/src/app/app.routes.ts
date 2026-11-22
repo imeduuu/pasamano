@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard } from './core/auth/auth.guards';
+import { adminGuard, authGuard, guestGuard } from './core/auth/auth.guards';
 import { MainLayout } from './layouts/main-layout/main-layout';
 
 export const routes: Routes = [
@@ -11,6 +11,13 @@ export const routes: Routes = [
         path: '',
         title: 'Trato · Compra y vende entre personas',
         loadComponent: () => import('./features/home/home-page').then((m) => m.HomePage),
+      },
+      {
+        path: 'admin/categorias',
+        title: 'Administrar categorías · Trato',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/category-admin-page').then((m) => m.CategoryAdminPage),
       },
       {
         path: 'registro',

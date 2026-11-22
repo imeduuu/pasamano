@@ -11,6 +11,15 @@ export const authGuard: CanActivateFn = (_route, state) => {
   return inject(Router).createUrlTree(['/ingresar'], { queryParams: { returnUrl: state.url } });
 };
 
+/** Restringe la administración a perfiles con rol ADMIN (RF-ADM-05). */
+export const adminGuard: CanActivateFn = (_route, state) => {
+  const auth = inject(AuthService);
+  if (!auth.isAuthenticated()) {
+    return inject(Router).createUrlTree(['/ingresar'], { queryParams: { returnUrl: state.url } });
+  }
+  return auth.user()?.roles.includes('ADMIN') ? true : inject(Router).createUrlTree(['/perfil']);
+};
+
 /** Pantallas de visitante (login, registro): con sesión iniciada, lleva al perfil. */
 export const guestGuard: CanActivateFn = () =>
   inject(AuthService).isAuthenticated() ? inject(Router).createUrlTree(['/perfil']) : true;

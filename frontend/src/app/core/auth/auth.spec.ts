@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree, provideRouter } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { authGuard, guestGuard } from './auth.guards';
+import { adminGuard, authGuard, guestGuard } from './auth.guards';
 import { authInterceptor, isPublicAuthUrl } from './auth.interceptor';
 import { UserProfile } from './auth.models';
 import { AuthService } from './auth.service';
@@ -187,6 +187,23 @@ describe('Sesión (AuthService, interceptor y guards)', () => {
 
       expect(result).toBeInstanceOf(UrlTree);
       expect(String(result)).toBe('/ingresar?returnUrl=%2Fperfil');
+    });
+
+    it('el guard ADMIN permite admins y redirige usuarios a su perfil', async () => {
+      await signIn();
+      expect(
+        String(
+          TestBed.runInInjectionContext(() =>
+            adminGuard({} as never, { url: '/admin/categorias' } as never),
+          ),
+        ),
+      ).toBe('/perfil');
+      auth.user.set({ ...PROFILE, roles: ['ADMIN'] });
+      expect(
+        TestBed.runInInjectionContext(() =>
+          adminGuard({} as never, { url: '/admin/categorias' } as never),
+        ),
+      ).toBe(true);
     });
 
     it('con sesión, las rutas protegidas se abren y las de visitante llevan al perfil', async () => {
