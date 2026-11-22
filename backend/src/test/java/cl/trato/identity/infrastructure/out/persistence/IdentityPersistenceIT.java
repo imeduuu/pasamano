@@ -16,6 +16,7 @@ import cl.trato.identity.domain.PasswordHash;
 import cl.trato.identity.domain.Profile;
 import cl.trato.identity.domain.RefreshToken;
 import cl.trato.identity.domain.Role;
+import cl.trato.identity.domain.SellerProfile;
 import cl.trato.identity.domain.TokenPurpose;
 import cl.trato.identity.domain.User;
 import cl.trato.identity.domain.UserId;
@@ -41,6 +42,7 @@ class IdentityPersistenceIT {
   @Autowired RefreshTokenRepository refreshTokens;
   @Autowired OneTimeTokenRepository oneTimeTokens;
   @Autowired ConsentRepository consents;
+  @Autowired cl.trato.identity.application.port.SellerProfileRepository sellerProfiles;
   @Autowired JdbcTemplate jdbc;
 
   User newUser() {
@@ -185,6 +187,21 @@ class IdentityPersistenceIT {
     assertThat(row)
         .containsEntry("terms_version", "2026-11-20")
         .containsEntry("privacy_version", "2026-11-21");
+  }
+
+  @Test
+  void seller_profiles_round_trip_and_store_names_are_unique_without_case_sensitivity() {
+    User first = users.save(newUser());
+    User second = users.save(newUser());
+    SellerProfile profile = SellerProfile.activate(first.id(), "Tienda Única", "2026-11-20", NOW);
+    sellerProfiles.save(profile);
+
+    assertThat(sellerProfiles.findByUserId(first.id())).contains(profile);
+    assertThat(sellerProfiles.existsByNormalizedStoreName("tienda única")).isTrue();
+    SellerProfile duplicate =
+        SellerProfile.activate(second.id(), "TIENDA ÚNICA", "2026-11-20", NOW);
+    assertThatThrownBy(() -> sellerProfiles.save(duplicate))
+        .isInstanceOf(cl.trato.shared.domain.exception.ConflictException.class);
   }
 
   @Test

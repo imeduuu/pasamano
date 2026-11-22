@@ -75,6 +75,22 @@ final class AuthDtos {
       @Size(max = 60, message = "La comuna puede tener como máximo 60 caracteres.") String commune,
       @Size(max = 500, message = "La URL de la foto es demasiado larga.") String photoUrl) {}
 
+  record ActivateSellerProfileRequest(
+      @NotBlank(message = "Ingresa el nombre de tu tienda.") @Size(
+              min = 3,
+              max = 40,
+              message = "El nombre de tienda debe tener entre 3 y 40 caracteres.")
+          String storeName,
+      @AssertTrue(message = "Debes aceptar los términos de venta.") boolean acceptSalesTerms) {}
+
+  record SellerProfileResponse(String storeName, String termsVersion, Instant termsAcceptedAt) {
+
+    static SellerProfileResponse of(cl.trato.identity.domain.SellerProfile profile) {
+      return new SellerProfileResponse(
+          profile.storeName(), profile.termsVersion(), profile.termsAcceptedAt());
+    }
+  }
+
   @Schema(description = "Token de acceso. El de refresco viaja solo en la cookie HttpOnly")
   record TokenResponse(String accessToken, String tokenType, long expiresIn, Instant expiresAt) {}
 

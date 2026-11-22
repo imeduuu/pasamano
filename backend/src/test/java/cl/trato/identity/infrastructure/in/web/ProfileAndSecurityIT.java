@@ -95,6 +95,65 @@ class ProfileAndSecurityIT {
   }
 
   @Test
+  void seller_profile_activation_returns_201_and_requires_valid_store_name_and_terms()
+      throws Exception {
+    IdentityApiClient.Session session = api.signIn(api.activeAccount());
+
+    mvc.perform(
+            post("/api/v1/me/seller-profile")
+                .header("Authorization", session.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"storeName\":\"Tienda Sur\",\"acceptSalesTerms\":true}"))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.storeName").value("Tienda Sur"))
+        .andExpect(jsonPath("$.termsVersion").value("2026-11-20"))
+        .andExpect(jsonPath("$.termsAcceptedAt").isNotEmpty());
+  }
+
+  @Test
+  void seller_profile_activation_returns_400_for_invalid_input() throws Exception {
+    IdentityApiClient.Session session = api.signIn(api.activeAccount());
+
+    mvc.perform(
+            post("/api/v1/me/seller-profile")
+                .header("Authorization", session.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"storeName\":\"ab\",\"acceptSalesTerms\":true}"))
+        .andExpect(status().isBadRequest());
+    mvc.perform(
+            post("/api/v1/me/seller-profile")
+                .header("Authorization", session.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"storeName\":\"Tienda Sur\",\"acceptSalesTerms\":false}"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void seller_profile_requires_authentication_and_conflicts_when_already_activated()
+      throws Exception {
+    mvc.perform(
+            post("/api/v1/me/seller-profile")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"storeName\":\"Tienda Sur\",\"acceptSalesTerms\":true}"))
+        .andExpect(status().isUnauthorized());
+
+    IdentityApiClient.Session session = api.signIn(api.activeAccount());
+    String body = "{\"storeName\":\"Tienda Sur\",\"acceptSalesTerms\":true}";
+    mvc.perform(
+            post("/api/v1/me/seller-profile")
+                .header("Authorization", session.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+        .andExpect(status().isCreated());
+    mvc.perform(
+            post("/api/v1/me/seller-profile")
+                .header("Authorization", session.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
   void a_user_cannot_read_or_edit_another_users_profile() throws Exception {
     String anaEmail = api.activeAccount();
     String betoEmail = api.activeAccount();

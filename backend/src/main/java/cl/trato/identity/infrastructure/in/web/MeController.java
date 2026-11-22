@@ -1,13 +1,16 @@
 package cl.trato.identity.infrastructure.in.web;
 
+import cl.trato.identity.application.ActivateSellerProfile;
 import cl.trato.identity.application.ChangePassword;
 import cl.trato.identity.application.ChangePasswordCommand;
 import cl.trato.identity.application.GetProfile;
 import cl.trato.identity.application.UpdateProfile;
 import cl.trato.identity.application.UpdateProfileCommand;
 import cl.trato.identity.domain.UserId;
+import cl.trato.identity.infrastructure.in.web.AuthDtos.ActivateSellerProfileRequest;
 import cl.trato.identity.infrastructure.in.web.AuthDtos.ChangePasswordRequest;
 import cl.trato.identity.infrastructure.in.web.AuthDtos.ProfileResponse;
+import cl.trato.identity.infrastructure.in.web.AuthDtos.SellerProfileResponse;
 import cl.trato.identity.infrastructure.in.web.AuthDtos.UpdateProfileRequest;
 import cl.trato.shared.infrastructure.config.OpenApiConfiguration;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,16 +41,19 @@ class MeController {
   private final GetProfile getProfile;
   private final UpdateProfile updateProfile;
   private final ChangePassword changePassword;
+  private final ActivateSellerProfile activateSellerProfile;
   private final RefreshTokenCookies cookies;
 
   MeController(
       GetProfile getProfile,
       UpdateProfile updateProfile,
       ChangePassword changePassword,
+      ActivateSellerProfile activateSellerProfile,
       RefreshTokenCookies cookies) {
     this.getProfile = getProfile;
     this.updateProfile = updateProfile;
     this.changePassword = changePassword;
+    this.activateSellerProfile = activateSellerProfile;
     this.cookies = cookies;
   }
 
@@ -83,6 +89,16 @@ class MeController {
     return ResponseEntity.noContent()
         .header(HttpHeaders.SET_COOKIE, cookies.clear().toString())
         .build();
+  }
+
+  @PostMapping("/seller-profile")
+  @Operation(summary = "Activar mi perfil vendedor (HU-07 / CU-15 / RF-USR-02)")
+  ResponseEntity<SellerProfileResponse> activateSellerProfile(
+      @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ActivateSellerProfileRequest request) {
+    return ResponseEntity.status(201)
+        .body(
+            SellerProfileResponse.of(
+                activateSellerProfile.execute(currentUser(jwt), request.storeName())));
   }
 
   private static UserId currentUser(Jwt jwt) {

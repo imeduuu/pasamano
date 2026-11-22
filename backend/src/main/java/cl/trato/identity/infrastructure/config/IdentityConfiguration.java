@@ -1,5 +1,6 @@
 package cl.trato.identity.infrastructure.config;
 
+import cl.trato.identity.application.ActivateSellerProfile;
 import cl.trato.identity.application.ChangePassword;
 import cl.trato.identity.application.GetProfile;
 import cl.trato.identity.application.Login;
@@ -18,6 +19,7 @@ import cl.trato.identity.application.port.ConsentRepository;
 import cl.trato.identity.application.port.OneTimeTokenRepository;
 import cl.trato.identity.application.port.PasswordHasher;
 import cl.trato.identity.application.port.RefreshTokenRepository;
+import cl.trato.identity.application.port.SellerProfileRepository;
 import cl.trato.identity.application.port.TokenGenerator;
 import cl.trato.identity.application.port.UserRepository;
 import cl.trato.identity.domain.LegalVersions;
@@ -162,6 +164,16 @@ public class IdentityConfiguration {
   @Bean
   UpdateProfile updateProfile(UserRepository users, Clock clock) {
     return new UpdateProfile(users, clock);
+  }
+
+  @Bean
+  ActivateSellerProfile activateSellerProfile(
+      UserRepository users,
+      SellerProfileRepository sellerProfiles,
+      IdentityProperties properties,
+      Clock clock) {
+    return new ActivateSellerProfile(
+        users, sellerProfiles, clock, properties.legal().termsVersion());
   }
 
   @Bean
