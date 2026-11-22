@@ -7,9 +7,11 @@ import cl.trato.identity.domain.UserId;
 import java.time.Instant;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Adaptador JPA del puerto {@link OneTimeTokenRepository}. */
 @Component
+@Transactional
 class JpaOneTimeTokenRepositoryAdapter implements OneTimeTokenRepository {
 
   private final OneTimeTokenJpaRepository jpa;

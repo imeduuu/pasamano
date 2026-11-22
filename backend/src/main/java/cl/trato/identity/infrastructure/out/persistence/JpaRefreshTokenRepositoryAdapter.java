@@ -7,9 +7,11 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Adaptador JPA del puerto {@link RefreshTokenRepository}. */
 @Component
+@Transactional
 class JpaRefreshTokenRepositoryAdapter implements RefreshTokenRepository {
 
   private final RefreshTokenJpaRepository jpa;
