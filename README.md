@@ -48,7 +48,8 @@ otro. Los módulos se comunican por eventos de dominio después del commit
 ([ADR-008](docs/adr/ADR-008-eventos-de-dominio-after-commit.md)).
 
 - Especificación: `SRS_Trato_Sprint0.pdf` (documento interno, fuera del control de versiones).
-- Decisiones: [docs/adr](docs/adr) (ADR-001 a ADR-008) y
+- Decisiones: [docs/adr](docs/adr) (ADR-001 a ADR-009), incluida
+  [ADR-009: rate limiting en memoria](docs/adr/ADR-009-rate-limiting-en-memoria.md), y
   [docs/decisiones-pendientes.md](docs/decisiones-pendientes.md).
 
 ```text
