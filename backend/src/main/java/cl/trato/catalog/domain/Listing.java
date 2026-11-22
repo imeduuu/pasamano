@@ -15,6 +15,7 @@ public final class Listing {
   private static final int MAX_IMAGES = 8;
 
   private final UUID id;
+  private final Long version;
   private final String title;
   private final String description;
   private final Money price;
@@ -38,7 +39,11 @@ public final class Listing {
       Category category,
       String region,
       String commune,
-      UserId seller) {
+      UserId seller,
+      UUID id,
+      Long version,
+      ListingStatus status,
+      List<String> images) {
     if (title == null || title.strip().length() < 10 || title.strip().length() > 80) {
       throw invalid("El título debe tener entre 10 y 80 caracteres.");
     }
@@ -56,7 +61,8 @@ public final class Listing {
     }
     this.region = requiredLocation(region, "región");
     this.commune = requiredLocation(commune, "comuna");
-    this.id = UUID.randomUUID();
+    this.id = Objects.requireNonNull(id, "id");
+    this.version = version;
     this.title = title.strip();
     this.description = description;
     this.price = price;
@@ -65,6 +71,8 @@ public final class Listing {
     this.condition = condition;
     this.category = category;
     this.seller = Objects.requireNonNull(seller, "seller");
+    this.status = Objects.requireNonNull(status, "status");
+    this.images.addAll(images);
   }
 
   public static Listing create(
@@ -88,7 +96,44 @@ public final class Listing {
         category,
         region,
         commune,
-        seller);
+        seller,
+        UUID.randomUUID(),
+        null,
+        ListingStatus.BORRADOR,
+        List.of());
+  }
+
+  /** Reconstruye una publicación persistida sin alterar sus datos ni emitir efectos; RF-PUB-01. */
+  public static Listing rehydrate(
+      UUID id,
+      String title,
+      String description,
+      Money price,
+      int stockTotal,
+      int stockReserved,
+      ListingCondition condition,
+      Category category,
+      String region,
+      String commune,
+      UserId seller,
+      ListingStatus status,
+      List<String> images,
+      Long version) {
+    return new Listing(
+        title,
+        description,
+        price,
+        stockTotal,
+        stockReserved,
+        condition,
+        category,
+        region,
+        commune,
+        seller,
+        id,
+        version,
+        status,
+        images);
   }
 
   public void addImage(String image) {
@@ -166,6 +211,11 @@ public final class Listing {
 
   public UUID id() {
     return id;
+  }
+
+  /** Versión usada para el bloqueo optimista requerido por RN-05; {@code null} antes del alta. */
+  public Long version() {
+    return version;
   }
 
   public String title() {
