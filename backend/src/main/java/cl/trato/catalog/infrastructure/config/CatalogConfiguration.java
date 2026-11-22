@@ -5,7 +5,9 @@ import cl.trato.catalog.application.ManageCategories;
 import cl.trato.catalog.application.port.AuditLog;
 import cl.trato.catalog.application.port.CategoryListingCount;
 import cl.trato.catalog.application.port.CategoryRepository;
+import cl.trato.catalog.application.port.ImageProcessor;
 import cl.trato.catalog.application.port.ImageStorage;
+import cl.trato.catalog.infrastructure.out.image.ImageProcessorAdapter;
 import cl.trato.catalog.infrastructure.out.storage.MinioImageStorageAdapter;
 import java.time.Clock;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -16,6 +18,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(S3StorageProperties.class)
 public class CatalogConfiguration {
+  @Bean
+  ImageProcessor imageProcessor() {
+    return new ImageProcessorAdapter();
+  }
+
   @Bean(destroyMethod = "close")
   ImageStorage imageStorage(S3StorageProperties properties) {
     return new MinioImageStorageAdapter(

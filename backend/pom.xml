@@ -53,6 +53,13 @@
       <version>${aws-sdk.version}</version>
     </dependency>
 
+    <!-- Decodificador ImageIO para aceptar WebP de entrada. -->
+    <dependency>
+      <groupId>org.sejda.imageio</groupId>
+      <artifactId>webp-imageio</artifactId>
+      <version>0.1.6</version>
+    </dependency>
+
     <!-- Web y API -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
