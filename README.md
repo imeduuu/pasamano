@@ -1,5 +1,7 @@
 # Trato.
 
+[![CI](https://github.com/imeduuu/pasamano/actions/workflows/ci.yml/badge.svg)](https://github.com/imeduuu/pasamano/actions/workflows/ci.yml)
+
 Marketplace web de compra-venta entre personas: publicar productos con stock, buscarlos, comprar
 a varios vendedores en una sola compra, pagar con **Webpay Plus** (ambiente de integración de
 Transbank) y calificar al vendedor.
@@ -51,6 +53,17 @@ otro. Los módulos se comunican por eventos de dominio después del commit
 - Decisiones: [docs/adr](docs/adr) (ADR-001 a ADR-009), incluida
   [ADR-009: rate limiting en memoria](docs/adr/ADR-009-rate-limiting-en-memoria.md), y
   [docs/decisiones-pendientes.md](docs/decisiones-pendientes.md).
+
+## Problemas resueltos
+
+- **BCrypt y contraseñas largas:** BCrypt solo considera 72 bytes; aceptar más podía hacer que
+  contraseñas con el mismo prefijo coincidieran. `PasswordPolicy` rechaza más de 72 bytes UTF-8 y
+  `BCryptPasswordHasher.matches` no acepta contraseñas que exceden ese límite.
+- **Suplantación de IP y rate limit:** el login calcula el límite con `getRemoteAddr()`, que recibe
+  la IP reenviada por nginx. nginx ahora sobrescribe `X-Forwarded-For` con `$remote_addr`, así que
+  un valor enviado por el cliente no permite cambiar la IP usada para el límite.
+- **Spotless en Windows:** las diferencias CRLF/LF hacían fallar el formato; `.gitattributes`
+  normaliza los archivos del repositorio a LF y Spotless está configurado con `lineEndings` UNIX.
 
 ```text
 backend/    Spring Boot (Maven Wrapper)      frontend/   Angular + nginx
