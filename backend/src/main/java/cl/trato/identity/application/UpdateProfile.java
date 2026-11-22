@@ -1,5 +1,6 @@
 package cl.trato.identity.application;
 
+import cl.trato.identity.application.port.SellerProfileRepository;
 import cl.trato.identity.application.port.UserRepository;
 import cl.trato.identity.domain.DisplayName;
 import cl.trato.identity.domain.Profile;
@@ -12,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpdateProfile {
 
   private final UserRepository users;
+  private final SellerProfileRepository sellerProfiles;
   private final Clock clock;
 
-  public UpdateProfile(UserRepository users, Clock clock) {
+  public UpdateProfile(UserRepository users, SellerProfileRepository sellerProfiles, Clock clock) {
     this.users = users;
+    this.sellerProfiles = sellerProfiles;
     this.clock = clock;
   }
 
@@ -30,6 +33,7 @@ public class UpdateProfile {
             command.commune() == null ? current.commune() : command.commune(),
             command.photoUrl() == null ? current.photoUrl() : command.photoUrl());
     user.updateProfile(updated, clock.instant());
-    return UserProfileView.of(users.save(user));
+    return UserProfileView.of(
+        users.save(user), sellerProfiles.findByUserId(command.userId()).isPresent());
   }
 }

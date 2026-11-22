@@ -105,6 +105,7 @@ final class AuthDtos {
       String photoUrl,
       UserStatus status,
       Set<Role> roles,
+      boolean seller,
       Instant createdAt) {
 
     static ProfileResponse of(UserProfileView view) {
@@ -117,6 +118,7 @@ final class AuthDtos {
           view.photoUrl(),
           view.status(),
           view.roles(),
+          view.seller(),
           view.createdAt());
     }
   }

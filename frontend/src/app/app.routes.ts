@@ -49,6 +49,27 @@ export const routes: Routes = [
         loadComponent: () => import('./features/profile/profile-page').then((m) => m.ProfilePage),
       },
       {
+        path: 'activar-perfil-vendedor',
+        title: 'Activar perfil de vendedor · Trato',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/seller/activate-seller-page').then((m) => m.ActivateSellerPage),
+      },
+      {
+        path: 'publicar-producto',
+        title: 'Publicar producto · Trato',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/seller/publish-product-page').then((m) => m.PublishProductPage),
+      },
+      {
+        path: 'mis-publicaciones',
+        title: 'Mis publicaciones · Trato',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/seller/my-listings-page').then((m) => m.MyListingsPage),
+      },
+      {
         path: 'terminos',
         title: 'Términos y condiciones · Trato',
         loadComponent: () => import('./features/legal/legal-pages').then((m) => m.TermsPage),

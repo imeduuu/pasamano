@@ -1,0 +1,54 @@
+<section class="auth-card" aria-labelledby="seller-title">
+  <h1 id="seller-title">Activar perfil de vendedor</h1>
+
+  @if (formError(); as message) {
+    <p class="form-alert" role="alert">{{ message }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="seller-store-name">Nombre de tienda</label>
+      <input
+        id="seller-store-name"
+        type="text"
+        formControlName="storeName"
+        autocomplete="organization"
+        minlength="3"
+        maxlength="40"
+        [attr.aria-invalid]="showError(form.controls.storeName)"
+        [attr.aria-describedby]="
+          showError(form.controls.storeName) ? 'seller-store-name-error' : null
+        "
+      />
+      @if (showError(form.controls.storeName)) {
+        <p class="field-error" id="seller-store-name-error">
+          {{ errorMessage(form.controls.storeName, messages) }}
+        </p>
+      }
+    </div>
+
+    <div class="field">
+      <label class="checkbox-label" for="seller-terms">
+        <input
+          id="seller-terms"
+          type="checkbox"
+          formControlName="acceptSalesTerms"
+          [attr.aria-invalid]="showError(form.controls.acceptSalesTerms)"
+          [attr.aria-describedby]="
+            showError(form.controls.acceptSalesTerms) ? 'seller-terms-error' : null
+          "
+        />
+        Acepto los <a routerLink="/terminos">términos de venta</a>.
+      </label>
+      @if (showError(form.controls.acceptSalesTerms)) {
+        <p class="field-error" id="seller-terms-error">
+          {{ errorMessage(form.controls.acceptSalesTerms, messages) }}
+        </p>
+      }
+    </div>
+
+    <button class="button button--block" type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Activando…' : 'Activar perfil de vendedor' }}
+    </button>
+  </form>
+</section>

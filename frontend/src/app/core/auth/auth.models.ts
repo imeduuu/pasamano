@@ -23,6 +23,7 @@ export interface UserProfile {
   readonly photoUrl: string | null;
   readonly status: UserStatus;
   readonly roles: readonly Role[];
+  readonly seller: boolean;
   readonly createdAt: string;
 }
 

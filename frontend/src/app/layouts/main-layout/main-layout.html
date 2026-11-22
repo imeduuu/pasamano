@@ -22,6 +22,14 @@
         </li>
         @if (auth.isAuthenticated()) {
           <li>
+            <a
+              [routerLink]="auth.user()?.seller ? '/mis-publicaciones' : '/activar-perfil-vendedor'"
+              routerLinkActive="active"
+              ariaCurrentWhenActive="page"
+              >{{ auth.user()?.seller ? 'Mis publicaciones' : 'Vender' }}</a
+            >
+          </li>
+          <li>
             <a routerLink="/perfil" routerLinkActive="active" ariaCurrentWhenActive="page">
               {{ auth.user()?.name ?? 'Mi perfil' }}
             </a>

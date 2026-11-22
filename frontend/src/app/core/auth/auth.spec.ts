@@ -17,6 +17,7 @@ const PROFILE: UserProfile = {
   photoUrl: null,
   status: 'ACTIVE',
   roles: ['USER'],
+  seller: false,
   createdAt: '2026-12-07T12:00:00Z',
 };
 

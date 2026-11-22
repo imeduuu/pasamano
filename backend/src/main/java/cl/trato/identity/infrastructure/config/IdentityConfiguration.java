@@ -159,13 +159,14 @@ public class IdentityConfiguration {
   }
 
   @Bean
-  GetProfile getProfile(UserRepository users) {
-    return new GetProfile(users);
+  GetProfile getProfile(UserRepository users, SellerProfileRepository sellerProfiles) {
+    return new GetProfile(users, sellerProfiles);
   }
 
   @Bean
-  UpdateProfile updateProfile(UserRepository users, Clock clock) {
-    return new UpdateProfile(users, clock);
+  UpdateProfile updateProfile(
+      UserRepository users, SellerProfileRepository sellerProfiles, Clock clock) {
+    return new UpdateProfile(users, sellerProfiles, clock);
   }
 
   @Bean

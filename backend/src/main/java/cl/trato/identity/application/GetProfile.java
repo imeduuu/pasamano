@@ -1,5 +1,6 @@
 package cl.trato.identity.application;
 
+import cl.trato.identity.application.port.SellerProfileRepository;
 import cl.trato.identity.application.port.UserRepository;
 import cl.trato.identity.domain.UserId;
 import cl.trato.identity.domain.exception.UserNotFoundException;
@@ -9,13 +10,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class GetProfile {
 
   private final UserRepository users;
+  private final SellerProfileRepository sellerProfiles;
 
-  public GetProfile(UserRepository users) {
+  public GetProfile(UserRepository users, SellerProfileRepository sellerProfiles) {
     this.users = users;
+    this.sellerProfiles = sellerProfiles;
   }
 
   @Transactional(readOnly = true)
   public UserProfileView execute(UserId userId) {
-    return users.findById(userId).map(UserProfileView::of).orElseThrow(UserNotFoundException::new);
+    return users
+        .findById(userId)
+        .map(user -> UserProfileView.of(user, sellerProfiles.findByUserId(userId).isPresent()))
+        .orElseThrow(UserNotFoundException::new);
   }
 }

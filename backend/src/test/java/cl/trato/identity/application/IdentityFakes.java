@@ -5,6 +5,7 @@ import cl.trato.identity.application.port.ConsentRepository;
 import cl.trato.identity.application.port.OneTimeTokenRepository;
 import cl.trato.identity.application.port.PasswordHasher;
 import cl.trato.identity.application.port.RefreshTokenRepository;
+import cl.trato.identity.application.port.SellerProfileRepository;
 import cl.trato.identity.application.port.TokenGenerator;
 import cl.trato.identity.application.port.UserRepository;
 import cl.trato.identity.domain.Consent;
@@ -15,6 +16,7 @@ import cl.trato.identity.domain.OneTimeToken;
 import cl.trato.identity.domain.PasswordHash;
 import cl.trato.identity.domain.PasswordPolicy;
 import cl.trato.identity.domain.RefreshToken;
+import cl.trato.identity.domain.SellerProfile;
 import cl.trato.identity.domain.TokenPurpose;
 import cl.trato.identity.domain.User;
 import cl.trato.identity.domain.UserId;
@@ -44,6 +46,7 @@ final class IdentityFakes {
 
   final MutableClock clock = new MutableClock(START);
   final InMemoryUsers users = new InMemoryUsers();
+  final InMemorySellerProfiles sellerProfiles = new InMemorySellerProfiles();
   final InMemoryConsents consents = new InMemoryConsents();
   final InMemoryOneTimeTokens oneTimeTokens = new InMemoryOneTimeTokens();
   final InMemoryRefreshTokens refreshTokens = new InMemoryRefreshTokens();
@@ -91,11 +94,32 @@ final class IdentityFakes {
   }
 
   GetProfile getProfile() {
-    return new GetProfile(users);
+    return new GetProfile(users, sellerProfiles);
+  }
+
+  private static final class InMemorySellerProfiles implements SellerProfileRepository {
+    private final Map<UserId, SellerProfile> profiles = new ConcurrentHashMap<>();
+
+    @Override
+    public Optional<SellerProfile> findByUserId(UserId id) {
+      return Optional.ofNullable(profiles.get(id));
+    }
+
+    @Override
+    public boolean existsByNormalizedStoreName(String normalizedStoreName) {
+      return profiles.values().stream()
+          .anyMatch(profile -> profile.normalizedStoreName().equals(normalizedStoreName));
+    }
+
+    @Override
+    public SellerProfile save(SellerProfile profile) {
+      profiles.put(profile.userId(), profile);
+      return profile;
+    }
   }
 
   UpdateProfile updateProfile() {
-    return new UpdateProfile(users, clock);
+    return new UpdateProfile(users, sellerProfiles, clock);
   }
 
   ChangePassword changePassword() {

@@ -107,6 +107,19 @@ export class AuthService {
       .pipe(tap((profile) => this.user.set(profile)));
   }
 
+  activateSellerProfile(storeName: string): Observable<SellerProfileResponse> {
+    return this.api
+      .post<SellerProfileResponse>('/me/seller-profile', {
+        storeName,
+        acceptSalesTerms: true,
+      })
+      .pipe(
+        tap(() =>
+          this.user.update((profile) => (profile ? { ...profile, seller: true } : profile)),
+        ),
+      );
+  }
+
   /** Cambiar la contraseña cierra todas las sesiones: se vuelve a pedir el inicio de sesión. */
   changePassword(currentPassword: string, newPassword: string): Observable<void> {
     return this.api
@@ -135,4 +148,10 @@ export class AuthService {
     this.token.set(null);
     this.user.set(null);
   }
+}
+
+export interface SellerProfileResponse {
+  readonly storeName: string;
+  readonly termsVersion: string;
+  readonly termsAcceptedAt: string;
 }
