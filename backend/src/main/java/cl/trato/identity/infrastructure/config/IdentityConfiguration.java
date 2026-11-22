@@ -3,6 +3,7 @@ package cl.trato.identity.infrastructure.config;
 import cl.trato.identity.application.ActivateSellerProfile;
 import cl.trato.identity.application.ChangePassword;
 import cl.trato.identity.application.GetProfile;
+import cl.trato.identity.application.GetPublicSellerProfile;
 import cl.trato.identity.application.Login;
 import cl.trato.identity.application.Logout;
 import cl.trato.identity.application.OneTimeTokenIssuer;
@@ -15,6 +16,7 @@ import cl.trato.identity.application.SessionIssuer;
 import cl.trato.identity.application.UpdateProfile;
 import cl.trato.identity.application.VerifyEmail;
 import cl.trato.identity.application.port.AccessTokenIssuer;
+import cl.trato.identity.application.port.ActiveListingCount;
 import cl.trato.identity.application.port.ConsentRepository;
 import cl.trato.identity.application.port.OneTimeTokenRepository;
 import cl.trato.identity.application.port.PasswordHasher;
@@ -174,6 +176,18 @@ public class IdentityConfiguration {
       Clock clock) {
     return new ActivateSellerProfile(
         users, sellerProfiles, clock, properties.legal().termsVersion());
+  }
+
+  @Bean
+  GetPublicSellerProfile getPublicSellerProfile(
+      SellerProfileRepository sellerProfiles, ActiveListingCount activeListingCount) {
+    return new GetPublicSellerProfile(sellerProfiles, activeListingCount);
+  }
+
+  /** El catálogo aún no existe; este adaptador temporal informa cero publicaciones activas. */
+  @Bean
+  ActiveListingCount activeListingCount() {
+    return sellerId -> 0;
   }
 
   @Bean

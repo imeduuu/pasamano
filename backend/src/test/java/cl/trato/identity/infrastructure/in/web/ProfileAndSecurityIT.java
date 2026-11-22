@@ -111,6 +111,42 @@ class ProfileAndSecurityIT {
   }
 
   @Test
+  void public_seller_profile_returns_store_summary_without_personal_data() throws Exception {
+    String email = api.activeAccount();
+    IdentityApiClient.Session session = api.signIn(email);
+    String sellerId =
+        JsonPath.read(
+            mvc.perform(get("/api/v1/me").header("Authorization", session.bearer()))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(),
+            "$.id");
+    mvc.perform(
+            post("/api/v1/me/seller-profile")
+                .header("Authorization", session.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"storeName\":\"Tienda Sur\",\"acceptSalesTerms\":true}"))
+        .andExpect(status().isCreated());
+
+    mvc.perform(get("/api/v1/sellers/" + sellerId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.storeName").value("Tienda Sur"))
+        .andExpect(jsonPath("$.activatedAt").isNotEmpty())
+        .andExpect(jsonPath("$.reputation").value("Vendedor nuevo"))
+        .andExpect(jsonPath("$.completedSales").value(0))
+        .andExpect(jsonPath("$.activeListings").value(0))
+        .andExpect(jsonPath("$.email").doesNotExist())
+        .andExpect(jsonPath("$.name").doesNotExist())
+        .andExpect(jsonPath("$.userId").doesNotExist());
+  }
+
+  @Test
+  void public_seller_profile_returns_404_when_no_seller_exists() throws Exception {
+    mvc.perform(get("/api/v1/sellers/00000000-0000-0000-0000-000000000001"))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
   void seller_profile_activation_returns_400_for_invalid_input() throws Exception {
     IdentityApiClient.Session session = api.signIn(api.activeAccount());
 

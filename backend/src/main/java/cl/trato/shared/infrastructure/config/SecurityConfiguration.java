@@ -92,6 +92,8 @@ public class SecurityConfiguration {
                 .permitAll()
                 .requestMatchers(HttpMethod.POST, PUBLIC_AUTH)
                 .permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/sellers/**")
+                .permitAll()
                 .requestMatchers("/api/v1/admin/**")
                 .hasRole("ADMIN")
                 .anyRequest()
