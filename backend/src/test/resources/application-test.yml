@@ -13,6 +13,11 @@ spring:
     banner-mode: off
 
 trato:
+  storage:
+    s3:
+      endpoint: http://localhost:9000
+      access-key: test-access-key
+      secret-key: test-secret-key
   identity:
     jwt:
       secret: clave-de-pruebas-de-integracion-con-mas-de-32-bytes

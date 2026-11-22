@@ -5,13 +5,28 @@ import cl.trato.catalog.application.ManageCategories;
 import cl.trato.catalog.application.port.AuditLog;
 import cl.trato.catalog.application.port.CategoryListingCount;
 import cl.trato.catalog.application.port.CategoryRepository;
+import cl.trato.catalog.application.port.ImageStorage;
+import cl.trato.catalog.infrastructure.out.storage.MinioImageStorageAdapter;
 import java.time.Clock;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /** Cableado de los casos de uso del catálogo. */
 @Configuration
+@EnableConfigurationProperties(S3StorageProperties.class)
 public class CatalogConfiguration {
+  @Bean(destroyMethod = "close")
+  ImageStorage imageStorage(S3StorageProperties properties) {
+    return new MinioImageStorageAdapter(
+        properties.endpoint(),
+        properties.bucket(),
+        properties.accessKey(),
+        properties.secretKey(),
+        properties.region(),
+        properties.urlExpiration());
+  }
+
   @Bean
   GetCategories getCategories(CategoryRepository categories) {
     return new GetCategories(categories);

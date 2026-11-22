@@ -7,6 +7,11 @@ spring:
     password: ${DB_PASSWORD:trato}
 
 trato:
+  storage:
+    s3:
+      endpoint: ${S3_ENDPOINT:http://localhost:9000}
+      access-key: ${S3_ACCESS_KEY:trato-minio}
+      secret-key: ${S3_SECRET_KEY:trato-minio-dev}
   identity:
     jwt:
       # Solo para desarrollo local. En demo se exige la variable de entorno JWT_SECRET.
