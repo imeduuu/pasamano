@@ -1,0 +1,62 @@
+<section class="auth-card" aria-labelledby="login-title">
+  <h1 id="login-title">Ingresar</h1>
+
+  @if (formError(); as message) {
+    <div class="form-alert" role="alert">
+      <p>{{ message }}</p>
+      @if (canResendVerification()) {
+        <button type="button" class="button button--ghost" (click)="resendVerification()">
+          Reenviar correo de verificación
+        </button>
+      }
+    </div>
+  }
+  @if (notice(); as message) {
+    <p class="form-success" role="status">{{ message }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="login-email">Correo electrónico</label>
+      <input
+        id="login-email"
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+        [attr.aria-invalid]="showError(form.controls.email)"
+        [attr.aria-describedby]="showError(form.controls.email) ? 'login-email-error' : null"
+      />
+      @if (showError(form.controls.email)) {
+        <p class="field-error" id="login-email-error">
+          {{ errorMessage(form.controls.email, messages.email) }}
+        </p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="login-password">Contraseña</label>
+      <input
+        id="login-password"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        [attr.aria-invalid]="showError(form.controls.password)"
+        [attr.aria-describedby]="showError(form.controls.password) ? 'login-password-error' : null"
+      />
+      @if (showError(form.controls.password)) {
+        <p class="field-error" id="login-password-error">
+          {{ errorMessage(form.controls.password, messages.password) }}
+        </p>
+      }
+    </div>
+
+    <button class="button button--block" type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Ingresando…' : 'Ingresar' }}
+    </button>
+  </form>
+
+  <div class="form-links">
+    <a routerLink="/recuperar-contrasena">¿Olvidaste tu contraseña?</a>
+    <a routerLink="/registro">Crear cuenta</a>
+  </div>
+</section>

@@ -1,0 +1,125 @@
+<section class="auth-card" aria-labelledby="register-title">
+  <h1 id="register-title">Crear cuenta</h1>
+
+  @if (sentMessage(); as message) {
+    <div class="form-success" role="status">
+      <p>{{ message }}</p>
+      <p>Revisa tu bandeja de entrada (y la carpeta de spam). El enlace vale por 24 horas.</p>
+    </div>
+    <a class="button button--ghost" routerLink="/ingresar">Ir a ingresar</a>
+  } @else {
+    @if (formError(); as message) {
+      <p class="form-alert" role="alert">{{ message }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label for="register-name">Nombre</label>
+        <input
+          id="register-name"
+          type="text"
+          formControlName="name"
+          autocomplete="name"
+          [attr.aria-invalid]="showError(form.controls.name)"
+          [attr.aria-describedby]="showError(form.controls.name) ? 'register-name-error' : null"
+        />
+        @if (showError(form.controls.name)) {
+          <p class="field-error" id="register-name-error">
+            {{ errorMessage(form.controls.name, messages.name) }}
+          </p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="register-email">Correo electrónico</label>
+        <input
+          id="register-email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          [attr.aria-invalid]="showError(form.controls.email)"
+          [attr.aria-describedby]="showError(form.controls.email) ? 'register-email-error' : null"
+        />
+        @if (showError(form.controls.email)) {
+          <p class="field-error" id="register-email-error">
+            {{ errorMessage(form.controls.email, messages.email) }}
+          </p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="register-password">Contraseña</label>
+        <p class="hint" id="register-password-hint">
+          Mínimo 10 caracteres. Evita contraseñas comunes.
+        </p>
+        <input
+          id="register-password"
+          type="password"
+          formControlName="password"
+          autocomplete="new-password"
+          [attr.aria-invalid]="showError(form.controls.password)"
+          [attr.aria-describedby]="
+            showError(form.controls.password)
+              ? 'register-password-hint register-password-error'
+              : 'register-password-hint'
+          "
+        />
+        @if (showError(form.controls.password)) {
+          <p class="field-error" id="register-password-error">
+            {{ errorMessage(form.controls.password, messages.password) }}
+          </p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="register-confirm">Repite la contraseña</label>
+        <input
+          id="register-confirm"
+          type="password"
+          formControlName="confirmPassword"
+          autocomplete="new-password"
+          [attr.aria-invalid]="showError(form.controls.confirmPassword)"
+          [attr.aria-describedby]="
+            showError(form.controls.confirmPassword) ? 'register-confirm-error' : null
+          "
+        />
+        @if (showError(form.controls.confirmPassword)) {
+          <p class="field-error" id="register-confirm-error">
+            {{ errorMessage(form.controls.confirmPassword, messages.confirmPassword) }}
+          </p>
+        }
+      </div>
+
+      <div class="field">
+        <div class="checkbox">
+          <input
+            id="register-terms"
+            type="checkbox"
+            formControlName="acceptTerms"
+            [attr.aria-invalid]="showError(form.controls.acceptTerms)"
+            [attr.aria-describedby]="
+              showError(form.controls.acceptTerms) ? 'register-terms-error' : null
+            "
+          />
+          <label for="register-terms">
+            Acepto los <a routerLink="/terminos" target="_blank">términos y condiciones</a> y la
+            <a routerLink="/privacidad" target="_blank">política de privacidad</a>.
+          </label>
+        </div>
+        @if (showError(form.controls.acceptTerms)) {
+          <p class="field-error" id="register-terms-error">
+            {{ errorMessage(form.controls.acceptTerms, messages.acceptTerms) }}
+          </p>
+        }
+      </div>
+
+      <button class="button button--block" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Creando cuenta…' : 'Crear cuenta' }}
+      </button>
+    </form>
+
+    <div class="form-links">
+      <span>¿Ya tienes cuenta? <a routerLink="/ingresar">Ingresar</a></span>
+    </div>
+  }
+</section>

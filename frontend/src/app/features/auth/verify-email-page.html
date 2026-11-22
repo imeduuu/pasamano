@@ -1,0 +1,43 @@
+<section class="auth-card" aria-labelledby="verify-title">
+  <h1 id="verify-title">Verificar correo</h1>
+
+  @switch (state()) {
+    @case ('verifying') {
+      <p role="status">Verificando tu correo…</p>
+    }
+    @case ('verified') {
+      <p class="form-success" role="status">{{ message() }}</p>
+      <a class="button" routerLink="/ingresar">Ingresar</a>
+    }
+    @case ('failed') {
+      <p class="form-alert" role="alert">{{ message() }}</p>
+      <p>Si el enlace venció o ya lo usaste, te enviamos uno nuevo.</p>
+
+      @if (resendMessage(); as sent) {
+        <p class="form-success" role="status">{{ sent }}</p>
+      } @else {
+        <form [formGroup]="resendForm" (ngSubmit)="resend()" novalidate>
+          <div class="field">
+            <label for="verify-email">Correo electrónico</label>
+            <input
+              id="verify-email"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              [attr.aria-invalid]="showError(resendForm.controls.email)"
+              [attr.aria-describedby]="
+                showError(resendForm.controls.email) ? 'verify-email-error' : null
+              "
+            />
+            @if (showError(resendForm.controls.email)) {
+              <p class="field-error" id="verify-email-error">
+                {{ errorMessage(resendForm.controls.email, emailMessages) }}
+              </p>
+            }
+          </div>
+          <button class="button" type="submit">Reenviar enlace</button>
+        </form>
+      }
+    }
+  }
+</section>
