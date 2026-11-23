@@ -1,5 +1,5 @@
 import { HttpHeaders } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -10,6 +10,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { ApiClient } from '../../core/http/api-client';
 import { toProblem } from '../../core/http/problem';
+import { ListingImageUpload } from './listing-image-upload';
 
 interface Category {
   id: string;
@@ -63,7 +64,7 @@ const nonBlank: ValidatorFn = (control): ValidationErrors | null =>
 /** Formulario de alta y edición de publicaciones (CU-03, HU-08/HU-10, RF-PUB-01/03/04/06). */
 @Component({
   selector: 'app-publish-product-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ListingImageUpload],
   templateUrl: './publish-product-page.html',
 })
 export class PublishProductPage {
@@ -81,6 +82,7 @@ export class PublishProductPage {
   protected readonly apiErrors = signal<Record<string, string>>({});
   private etag: string | null = null;
   private loadedListing: Listing | null = null;
+  private readonly imageUpload = viewChild(ListingImageUpload);
 
   protected readonly form = this.fb.group({
     title: ['', titleValidator],
@@ -202,14 +204,29 @@ export class PublishProductPage {
           this.saving.set(false);
           return;
         }
+        this.editingId.set(listing.id);
         this.etag = response.headers.get('ETag') ?? this.etag;
-        if (action === 'publish' && listing.status === 'BORRADOR') this.publishListing(listing.id);
-        else {
-          this.saving.set(false);
-          this.message.set(
-            action === 'draft' ? 'Borrador guardado.' : 'Cambios guardados en la publicación.',
-          );
-        }
+        this.imageUpload()
+          ?.uploadPending(listing.id)
+          .subscribe({
+            next: (success) => {
+              if (!success) {
+                this.saving.set(false);
+                this.message.set(
+                  'No se pudieron subir todas las imágenes. Revisa los errores e inténtalo nuevamente.',
+                );
+              } else if (action === 'publish' && listing.status === 'BORRADOR')
+                this.publishListing(listing.id);
+              else {
+                this.saving.set(false);
+                this.message.set(
+                  action === 'draft'
+                    ? 'Borrador guardado.'
+                    : 'Cambios guardados en la publicación.',
+                );
+              }
+            },
+          });
       },
       error: (error: unknown) => this.showApiError(error),
     });
