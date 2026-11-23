@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { APP_CONFIG } from '../config/app-config';
@@ -7,6 +7,7 @@ export interface RequestOptions {
   params?: HttpParams | Record<string, string | number | boolean>;
   /** Envía cookies (necesario para el token de refresco HttpOnly). */
   withCredentials?: boolean;
+  headers?: HttpHeaders | Record<string, string | string[]>;
 }
 
 /** Cliente HTTP de la API de Trato: antepone la URL base configurable a cada ruta. */
@@ -28,12 +29,32 @@ export class ApiClient {
     return this.http.get<T>(this.url(path), options);
   }
 
+  getResponse<T>(path: string, options: RequestOptions = {}): Observable<HttpResponse<T>> {
+    return this.http.get<T>(this.url(path), { ...options, observe: 'response' });
+  }
+
   post<T>(path: string, body: unknown = {}, options: RequestOptions = {}): Observable<T> {
     return this.http.post<T>(this.url(path), body, options);
   }
 
+  postResponse<T>(
+    path: string,
+    body: unknown = {},
+    options: RequestOptions = {},
+  ): Observable<HttpResponse<T>> {
+    return this.http.post<T>(this.url(path), body, { ...options, observe: 'response' });
+  }
+
   patch<T>(path: string, body: unknown, options: RequestOptions = {}): Observable<T> {
     return this.http.patch<T>(this.url(path), body, options);
+  }
+
+  patchResponse<T>(
+    path: string,
+    body: unknown,
+    options: RequestOptions = {},
+  ): Observable<HttpResponse<T>> {
+    return this.http.patch<T>(this.url(path), body, { ...options, observe: 'response' });
   }
 
   delete<T>(path: string, options: RequestOptions = {}): Observable<T> {

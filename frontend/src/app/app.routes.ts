@@ -63,6 +63,13 @@ export const routes: Routes = [
           import('./features/seller/activate-seller-page').then((m) => m.ActivateSellerPage),
       },
       {
+        path: 'publicar-producto/:id',
+        title: 'Editar publicación · Trato',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/seller/publish-product-page').then((m) => m.PublishProductPage),
+      },
+      {
         path: 'publicar-producto',
         title: 'Publicar producto · Trato',
         canActivate: [authGuard],

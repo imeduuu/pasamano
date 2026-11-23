@@ -91,8 +91,10 @@ class ListingsController {
   }
 
   @GetMapping("/{id}")
-  GetListings.ListingView get(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
-    return queries.get(id, jwt == null ? null : user(jwt));
+  ResponseEntity<GetListings.ListingView> get(
+      @PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+    GetListings.ListingView listing = queries.get(id, jwt == null ? null : user(jwt));
+    return ResponseEntity.ok().eTag(etag(listing.version())).body(listing);
   }
 
   @ExceptionHandler(InvalidIfMatchException.class)

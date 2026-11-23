@@ -26,6 +26,7 @@ public class GetListings {
       String region,
       String commune,
       String status,
+      long version,
       String storeName,
       String reputation,
       List<ImageView> images) {}
@@ -83,6 +84,7 @@ public class GetListings {
         l.region(),
         l.commune(),
         l.status().name(),
+        l.version(),
         storeName,
         "Vendedor nuevo",
         l.images().stream()

@@ -1,0 +1,193 @@
+<section class="auth-card publish-card" aria-labelledby="publish-title">
+  <h1 id="publish-title">{{ editingId() ? 'Editar publicación' : 'Publicar producto' }}</h1>
+  <p>Completa los datos de tu producto. Los campos marcados son obligatorios.</p>
+
+  @if (message()) {
+    <p
+      [class.form-alert]="isConflict() || !message()?.includes('guardado')"
+      [class.form-success]="!isConflict() && message()?.includes('guardado')"
+      role="alert"
+    >
+      {{ message() }}
+    </p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit('draft')" novalidate>
+    <div class="field">
+      <label for="title">Título</label>
+      <input
+        id="title"
+        type="text"
+        formControlName="title"
+        maxlength="80"
+        required
+        [attr.aria-invalid]="fieldError('title') ? 'true' : null"
+        [attr.aria-describedby]="fieldError('title') ? 'title-error' : null"
+      />
+      @if (fieldError('title'); as error) {
+        <p class="field-error" id="title-error">{{ error }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="description">Descripción</label>
+      <textarea
+        id="description"
+        formControlName="description"
+        maxlength="4000"
+        rows="6"
+        required
+        [attr.aria-invalid]="fieldError('description') ? 'true' : null"
+        [attr.aria-describedby]="
+          fieldError('description') ? 'description-error description-count' : 'description-count'
+        "
+      ></textarea>
+      <p class="hint" id="description-count">{{ descriptionLength }} / 4.000 caracteres</p>
+      @if (fieldError('description'); as error) {
+        <p class="field-error" id="description-error">{{ error }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="price">Precio (CLP)</label>
+      <div class="price-input">
+        <span aria-hidden="true">$</span
+        ><input
+          id="price"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          formControlName="price"
+          (input)="formatPrice($event)"
+          placeholder="25.990"
+          required
+          [attr.aria-invalid]="fieldError('price') ? 'true' : null"
+          [attr.aria-describedby]="fieldError('price') ? 'price-hint price-error' : 'price-hint'"
+        />
+      </div>
+      <p class="hint" id="price-hint">Entre $100 y $99.999.999, sin decimales.</p>
+      @if (fieldError('price'); as error) {
+        <p class="field-error" id="price-error">{{ error }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="stock">Stock disponible</label>
+      <input
+        id="stock"
+        type="number"
+        min="0"
+        step="1"
+        formControlName="stock"
+        required
+        [attr.aria-invalid]="fieldError('stock') ? 'true' : null"
+        [attr.aria-describedby]="fieldError('stock') ? 'stock-error' : null"
+      />
+      @if (fieldError('stock'); as error) {
+        <p class="field-error" id="stock-error">{{ error }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="condition">Condición</label>
+      <select
+        id="condition"
+        formControlName="condition"
+        required
+        [attr.aria-invalid]="fieldError('condition') ? 'true' : null"
+        [attr.aria-describedby]="fieldError('condition') ? 'condition-error' : null"
+      >
+        <option value="">Selecciona una condición</option>
+        <option value="NUEVO">Nuevo</option>
+        <option value="USADO">Usado</option>
+      </select>
+      @if (fieldError('condition'); as error) {
+        <p class="field-error" id="condition-error">{{ error }}</p>
+      }
+    </div>
+
+    <fieldset class="field fieldset">
+      <legend>Categoría</legend>
+      <label for="category-parent">Categoría principal</label>
+      <select
+        id="category-parent"
+        [value]="categoryId()"
+        (change)="selectCategory($any($event.target).value)"
+      >
+        <option value="">Selecciona una categoría</option>
+        @for (category of categories(); track category.id) {
+          <option [value]="category.id">{{ category.name }}</option>
+        }
+      </select>
+      <label for="category">Subcategoría</label>
+      <select
+        id="category"
+        formControlName="category"
+        (change)="selectLeaf($any($event.target).value)"
+        required
+        [attr.aria-invalid]="fieldError('category') ? 'true' : null"
+        [attr.aria-describedby]="fieldError('category') ? 'category-error' : null"
+      >
+        <option value="">Selecciona una subcategoría</option>
+        @for (category of childCategories; track category.id) {
+          <option [value]="category.id">{{ category.name }}</option>
+        }
+      </select>
+      @if (fieldError('category'); as error) {
+        <p class="field-error" id="category-error">{{ error }}</p>
+      }
+    </fieldset>
+
+    <fieldset class="field fieldset">
+      <legend>Ubicación del producto</legend>
+      <label for="region">Región</label>
+      <select
+        id="region"
+        formControlName="region"
+        required
+        (change)="selectRegion($any($event.target).value)"
+        [attr.aria-invalid]="fieldError('region') ? 'true' : null"
+        [attr.aria-describedby]="fieldError('region') ? 'region-error' : null"
+      >
+        <option value="">Selecciona una región</option>
+        @for (region of regions(); track region.code) {
+          <option [value]="region.code">{{ region.name }}</option>
+        }
+      </select>
+      @if (fieldError('region'); as error) {
+        <p class="field-error" id="region-error">{{ error }}</p>
+      }
+      <label for="commune">Comuna</label>
+      <select
+        id="commune"
+        formControlName="commune"
+        required
+        [attr.aria-invalid]="fieldError('commune') ? 'true' : null"
+        [attr.aria-describedby]="fieldError('commune') ? 'commune-error' : null"
+      >
+        <option value="">Selecciona una comuna</option>
+        @for (commune of communes; track commune.code) {
+          <option [value]="commune.code">{{ commune.name }}</option>
+        }
+      </select>
+      @if (fieldError('commune'); as error) {
+        <p class="field-error" id="commune-error">{{ error }}</p>
+      }
+    </fieldset>
+
+    <div class="publish-actions">
+      <button
+        class="button button--ghost"
+        type="button"
+        data-action="draft"
+        [disabled]="saving()"
+        (click)="submit('draft')"
+      >
+        Guardar borrador
+      </button>
+      <button class="button" type="button" [disabled]="saving()" (click)="submit('publish')">
+        Publicar
+      </button>
+    </div>
+  </form>
+</section>
