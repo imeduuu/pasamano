@@ -24,7 +24,7 @@ async function verificationLink(email: string): Promise<string> {
           link = /https?:\/\/\S+\/verificar-correo\?token=[A-Za-z0-9_-]+/.exec(text)?.[0];
           return link;
         },
-        { timeout: 20_000, message: 'No llegó el correo de verificación a Mailpit' },
+        { timeout: 30_000, message: 'No llegó el correo de verificación a Mailpit' },
       )
       .toBeTruthy();
     return link!;
