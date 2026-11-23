@@ -7,6 +7,9 @@ spring:
     password: ${DB_PASSWORD:trato}
 
 trato:
+  seed:
+    # Crea categorías al iniciar; las publicaciones se generan solo al indicar un valor > 0.
+    listings: ${SEED_LISTINGS:0}
   storage:
     s3:
       endpoint: ${S3_ENDPOINT:http://localhost:9000}

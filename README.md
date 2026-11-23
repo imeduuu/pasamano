@@ -108,6 +108,26 @@ npm start                       # http://localhost:4200, con proxy /api -> local
 Perfiles del backend: `local` (desarrollo), `test` (pruebas, con Testcontainers) y `demo`
 (logs JSON). Toda la configuración sensible llega por variables de entorno (ver `.env.example`).
 
+### Datos semilla locales
+
+Al iniciar con el perfil `local` se crean de forma idempotente categorías iniciales de dos niveles
+(Tecnología, Hogar, Deportes y Moda, con sus subcategorías). No se generan publicaciones salvo que
+se configure una cantidad. Para preparar 10.000 publicaciones falsas para las pruebas de búsqueda
+del Sprint 3, levanta primero la infraestructura local y ejecuta desde `backend/`:
+
+```powershell
+docker compose -f ..\docker-compose.yml up -d
+$env:SEED_LISTINGS = "10000"
+.\mvnw.cmd spring-boot:run
+Remove-Item Env:SEED_LISTINGS
+```
+
+También puedes pasar `--trato.seed.listings=10000` a la aplicación. Datafaker crea títulos,
+descripciones, vendedores, precios y ubicaciones; cada publicación queda `ACTIVA` y se asocia a una
+categoría hoja. Las imágenes son marcadores SVG generados en el backend y guardados en MinIO local;
+no se descarga contenido externo. El valor predeterminado es `0`, y los datos semilla solo se
+habilitan con el perfil `local`.
+
 ## Pruebas
 
 ```bash
