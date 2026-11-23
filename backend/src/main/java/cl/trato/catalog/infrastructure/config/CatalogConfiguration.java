@@ -1,6 +1,7 @@
 package cl.trato.catalog.infrastructure.config;
 
 import cl.trato.catalog.application.GetCategories;
+import cl.trato.catalog.application.GetListings;
 import cl.trato.catalog.application.ManageCategories;
 import cl.trato.catalog.application.ManageListings;
 import cl.trato.catalog.application.port.AuditLog;
@@ -12,6 +13,7 @@ import cl.trato.catalog.application.port.ListingRepository;
 import cl.trato.catalog.infrastructure.out.image.ImageProcessorAdapter;
 import cl.trato.catalog.infrastructure.out.storage.MinioImageStorageAdapter;
 import cl.trato.geo.application.port.RegionRepository;
+import cl.trato.identity.application.port.ActiveListingCount;
 import cl.trato.identity.application.port.SellerProfileRepository;
 import java.time.Clock;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -64,5 +66,16 @@ public class CatalogConfiguration {
       RegionRepository regions,
       SellerProfileRepository sellers) {
     return new ManageListings(listings, categories, regions, sellers);
+  }
+
+  @Bean
+  GetListings getListings(
+      ListingRepository listings, SellerProfileRepository sellers, ImageStorage images) {
+    return new GetListings(listings, sellers, images);
+  }
+
+  @Bean
+  ActiveListingCount activeListingCount(ListingRepository listings) {
+    return listings::countActiveBySeller;
   }
 }

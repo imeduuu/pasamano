@@ -185,12 +185,6 @@ public class IdentityConfiguration {
     return new GetPublicSellerProfile(sellerProfiles, activeListingCount);
   }
 
-  /** El catálogo aún no existe; este adaptador temporal informa cero publicaciones activas. */
-  @Bean
-  ActiveListingCount activeListingCount() {
-    return sellerId -> 0;
-  }
-
   @Bean
   ChangePassword changePassword(
       UserRepository users,

@@ -1,5 +1,6 @@
 package cl.trato.catalog.infrastructure.in.web;
 
+import cl.trato.catalog.application.GetListings;
 import cl.trato.catalog.application.ManageListings;
 import cl.trato.catalog.domain.Listing;
 import cl.trato.catalog.domain.ListingCondition;
@@ -22,6 +23,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,9 +83,16 @@ class ListingsController {
   }
 
   private final ManageListings listings;
+  private final GetListings queries;
 
-  ListingsController(ManageListings listings) {
+  ListingsController(ManageListings listings, GetListings queries) {
     this.listings = listings;
+    this.queries = queries;
+  }
+
+  @GetMapping("/{id}")
+  GetListings.ListingView get(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+    return queries.get(id, jwt == null ? null : user(jwt));
   }
 
   @ExceptionHandler(InvalidIfMatchException.class)

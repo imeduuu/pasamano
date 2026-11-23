@@ -1,6 +1,7 @@
 package cl.trato.catalog.infrastructure;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -144,6 +145,88 @@ class ListingsApiIT {
     transition("pause", id, "\"0\"")
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("INVALID_LISTING_TRANSITION"));
+  }
+
+  /** RF-PUB-08/RF-BUS-05/T08: visibilidad pública, del dueño y contador del perfil. */
+  @Test
+  void listing_visibility_depends_on_status_and_viewer_and_profile_counts_active_listings()
+      throws Exception {
+    UUID id = listingId(createListing(body()));
+    jdbc.update(
+        "insert into listing_images(id,listing_id,position,image_reference) values (?,?,?,?)",
+        UUID.randomUUID(),
+        id,
+        0,
+        "listings/test/foto.jpg");
+    String detail = "/api/v1/listings/" + id;
+
+    mvc.perform(get(detail)).andExpect(status().isNotFound());
+    mvc.perform(get(detail).header("Authorization", seller.bearer()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("BORRADOR"))
+        .andExpect(jsonPath("$.storeName").exists())
+        .andExpect(jsonPath("$.reputation").value("Vendedor nuevo"))
+        .andExpect(jsonPath("$.images[0].url").exists())
+        .andExpect(jsonPath("$.images[0].thumbnailUrl").exists());
+
+    Session stranger =
+        createSeller(
+            "viewer-" + UUID.randomUUID() + "@ejemplo.cl",
+            true,
+            UUID.randomUUID().toString().substring(0, 8));
+    mvc.perform(get(detail).header("Authorization", stranger.bearer()))
+        .andExpect(status().isNotFound());
+
+    MvcResult active = transition("publish", id, "\"0\"").andExpect(status().isOk()).andReturn();
+    mvc.perform(get(detail))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("ACTIVA"));
+    UUID sellerId =
+        jdbc.queryForObject("select seller_id from listings where id = ?", UUID.class, id);
+    mvc.perform(get("/api/v1/sellers/" + sellerId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.activeListings").value(1));
+    mvc.perform(get("/api/v1/me/listings").header("Authorization", seller.bearer()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.size").value(20))
+        .andExpect(jsonPath("$.items[0].id").value(id.toString()));
+
+    transition("pause", id, active.getResponse().getHeader("ETag")).andExpect(status().isOk());
+    mvc.perform(get(detail)).andExpect(status().isNotFound());
+    mvc.perform(get(detail).header("Authorization", seller.bearer()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("PAUSADA"));
+    jdbc.update("update listings set status = 'BLOQUEADA' where id = ?", id);
+    mvc.perform(get(detail)).andExpect(status().isNotFound());
+    mvc.perform(get(detail).header("Authorization", seller.bearer()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("BLOQUEADA"));
+
+    UUID soldOutId = listingId(createListing(body().replace("\"stock\":2", "\"stock\":0")));
+    jdbc.update(
+        "insert into listing_images(id,listing_id,position,image_reference) values (?,?,?,?)",
+        UUID.randomUUID(),
+        soldOutId,
+        0,
+        "listings/test/agotada.jpg");
+    MvcResult soldOut =
+        transition("publish", soldOutId, "\"0\"")
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("AGOTADA"))
+            .andReturn();
+    mvc.perform(get("/api/v1/listings/" + soldOutId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("AGOTADA"));
+    mvc.perform(get("/api/v1/me/listings?size=500").header("Authorization", seller.bearer()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.size").value(50));
+    mvc.perform(
+            delete("/api/v1/listings/" + soldOutId)
+                .header("Authorization", seller.bearer())
+                .header("If-Match", soldOut.getResponse().getHeader("ETag")))
+        .andExpect(status().isNoContent());
+    mvc.perform(get("/api/v1/listings/" + soldOutId).header("Authorization", seller.bearer()))
+        .andExpect(status().isNotFound());
   }
 
   private MvcResult createListing(String content) throws Exception {

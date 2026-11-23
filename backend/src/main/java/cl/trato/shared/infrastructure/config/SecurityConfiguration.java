@@ -94,6 +94,8 @@ public class SecurityConfiguration {
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/sellers/**")
                 .permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/listings/*")
+                .permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories")
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/regions")
