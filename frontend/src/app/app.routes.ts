@@ -13,6 +13,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/home/home-page').then((m) => m.HomePage),
       },
       {
+        path: 'producto/:id',
+        loadComponent: () =>
+          import('./features/catalog/listing-detail-page').then((m) => m.ListingDetailPage),
+      },
+      {
+        path: 'vendedores/:id',
+        loadComponent: () =>
+          import('./features/profile/public-seller-page').then((m) => m.PublicSellerPage),
+      },
+      {
         path: 'admin/categorias',
         title: 'Administrar categorías · Trato',
         canActivate: [adminGuard],

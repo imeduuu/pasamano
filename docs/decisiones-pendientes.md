@@ -64,3 +64,5 @@ siguiente refinamiento. Cada punto puede confirmarse, cambiarse o pasar a un ADR
 | 44 | Publicar desde CU-03 | El formulario guarda primero el borrador y luego invoca la transición `publish`; el backend mantiene la regla RN-12 de exigir al menos una imagen. | El alcance de CU-03 pide datos del producto y los botones de borrador/publicación, pero no incluye carga de imágenes. Se muestra el Problem Details devuelto si falta la imagen y se deja la carga para CU-04/RF-PUB-02. |
 
 | 45 | L�mite y formatos de im�genes en la interfaz (HU-09, RF-PUB-02, RN-12) | Aceptar JPG, PNG y WebP hasta 5 MiB por archivo y 8 archivos; mostrar progreso por archivo y usar la primera posici�n como principal. | Coincide con ImageProcessorAdapter y ManageListingImages; la API no publica el l�mite en un endpoint de metadatos. |
+
+| 46 | ID del vendedor en el detalle público (RF-BUS-05) | Incluir `sellerId` en `GET /api/v1/listings/{id}` para enlazar al perfil público `/vendedores/{id}`. | El detalle devolvía el nombre de tienda pero no una referencia estable para construir el enlace al perfil existente. |

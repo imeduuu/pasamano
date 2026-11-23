@@ -27,6 +27,7 @@ public class GetListings {
       String commune,
       String status,
       long version,
+      String sellerId,
       String storeName,
       String reputation,
       List<ImageView> images) {}
@@ -85,6 +86,7 @@ public class GetListings {
         l.commune(),
         l.status().name(),
         l.version(),
+        l.seller().value().toString(),
         storeName,
         "Vendedor nuevo",
         l.images().stream()
