@@ -66,3 +66,22 @@ siguiente refinamiento. Cada punto puede confirmarse, cambiarse o pasar a un ADR
 | 45 | L�mite y formatos de im�genes en la interfaz (HU-09, RF-PUB-02, RN-12) | Aceptar JPG, PNG y WebP hasta 5 MiB por archivo y 8 archivos; mostrar progreso por archivo y usar la primera posici�n como principal. | Coincide con ImageProcessorAdapter y ManageListingImages; la API no publica el l�mite en un endpoint de metadatos. |
 
 | 46 | ID del vendedor en el detalle público (RF-BUS-05) | Incluir `sellerId` en `GET /api/v1/listings/{id}` para enlazar al perfil público `/vendedores/{id}`. | El detalle devolvía el nombre de tienda pero no una referencia estable para construir el enlace al perfil existente. |
+
+## Cierre de Sprint 2 (2026-11-23)
+
+HU-07, HU-08, HU-09 y HU-10 están implementadas. Las pruebas de backend, frontend y los flujos E2E de navegador cubren los recorridos incluidos en este incremento. La administración de categorías y el catálogo de regiones/comunas también quedaron incorporados; no cambian el número de HU registrado en las pruebas de Sprint 2.
+
+| # | Tema | Decisión | Motivo |
+| --- | --- | --- | --- |
+| 47 | Matriz de navegadores E2E (RNF-COM-01, RNF-USA-01) | Chromium, Firefox y WebKit, en escritorio y viewport de 360 px; 18 casos en la configuración actual. | Se valida compatibilidad de los flujos de identidad y publicación en los navegadores y tamaños requeridos. |
+| 48 | Capturas de producto | Pendiente: incorporar capturas de inicio, detalle de publicación, gestión de vendedor y categorías al README. | No se generaron capturas durante el cierre; el README conserva los TODO explícitos. |
+| 49 | E2E en CI | Pendiente: incorporar Docker Compose y Playwright a la canalización CI. | El cierre valida E2E localmente; la etapa de CI sigue fuera del workflow actual. |
+| 50 | Foto de perfil del vendedor | Se mantiene URL HTTP(S) opcional; la carga de foto queda pendiente para un incremento futuro. | La carga de Sprint 2 cubre las imágenes de publicaciones, no las fotos de perfil. |
+| 51 | Cookie Secure en Compose local | `REFRESH_COOKIE_SECURE=false` por defecto para HTTP local; habilitar `true` en entornos HTTPS. | WebKit no conserva cookies Secure sobre HTTP localhost y no restaura la sesión; con este valor la matriz E2E puede validar renovación real y el despliegue seguro mantiene Secure habilitado. |
+
+### Decisiones abiertas
+
+- Automatizar en CI la matriz Playwright completa (decisión #49).
+- Incorporar las capturas pendientes al README (decisión #48).
+- Definir el alcance y la estrategia de búsqueda avanzada del siguiente sprint; el seed de 10.000 publicaciones es solo apoyo de desarrollo.
+- Redactar los textos legales definitivos y revisar los pendientes operacionales #27 al #30.

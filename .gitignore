@@ -46,3 +46,6 @@ Thumbs.db
 # Playwright
 **/playwright-report/
 **/test-results/
+
+# Registro de cierre local de Sprint 2 (no se versiona)
+/CHANGELOG.md

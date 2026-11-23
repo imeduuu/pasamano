@@ -391,9 +391,10 @@ export class ListingDetailPage {
     event.preventDefault();
     const next = (index + (event.key === 'ArrowRight' ? 1 : -1) + count) % count;
     this.selectImage(next);
-    (event.currentTarget as HTMLElement).parentElement
-      ?.querySelectorAll<HTMLButtonElement>('[data-thumbnail]')
-      [next]?.focus();
+    const thumbnails = (
+      event.currentTarget as HTMLElement
+    ).parentElement?.querySelectorAll<HTMLButtonElement>('[data-thumbnail]');
+    thumbnails?.[next]?.focus();
   }
 
   private locationLabel(listing: Listing, regions: Region[]): string {

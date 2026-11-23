@@ -15,7 +15,18 @@ Transbank) y calificar al vendedor.
 | --- | --- | --- |
 | 0 | Fundaciones: monorepo, CI, docker compose, ADR, layout | ✅ |
 | 1 | Identidad: registro, verificación, login, refresh, recuperación, perfil (HU-01 a HU-06) | ✅ |
-| 2+ | Publicaciones, búsqueda, carrito, checkout, Webpay, postventa | Pendiente |
+| 2 | Perfil vendedor, publicaciones, imágenes y administración de categorías (HU-07 a HU-10) | Implementado |
+| 3+ | Búsqueda avanzada, carrito, checkout, Webpay, postventa | Pendiente |
+
+### Entregado en Sprint 2
+
+- **HU-07:** activar el perfil vendedor y aceptar los términos de venta.
+- **HU-08:** crear publicaciones con categoría, precio, stock, condición y ubicación; guardar borradores y publicar.
+- **HU-09:** cargar, procesar, ordenar y eliminar imágenes en MinIO; seleccionar imagen principal y generar miniaturas.
+- **HU-10:** consultar, editar, pausar y eliminar publicaciones propias con control de concurrencia; exponer el detalle activo y el perfil del vendedor.
+- Administración de categorías con auditoría y catálogo oficial de regiones y comunas de Chile.
+
+**Capturas de pantalla:** TODO: agregar capturas de inicio, detalle de publicación, gestión del vendedor y administración de categorías.
 
 ## Stack
 
