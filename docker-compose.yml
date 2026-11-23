@@ -101,6 +101,7 @@ services:
       FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:4200}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
       JWT_SECRET: ${JWT_SECRET:-solo-para-desarrollo-local-cambiar-en-demo-0123456789}
+      API_RATE_LIMIT_PER_MINUTE: ${API_RATE_LIMIT_PER_MINUTE:-100}
       REFRESH_COOKIE_SECURE: ${REFRESH_COOKIE_SECURE:-false}
       S3_ENDPOINT: http://minio:9000
       S3_BUCKET: ${S3_BUCKET:-listings}

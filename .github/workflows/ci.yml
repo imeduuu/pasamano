@@ -120,6 +120,8 @@ jobs:
         env:
           # El stack E2E sirve HTTP en localhost; WebKit no acepta allí cookies Secure.
           REFRESH_COOKIE_SECURE: "false"
+          # La suite completa comparte IP; mantener el limitador activo sin bloquear sus lecturas.
+          API_RATE_LIMIT_PER_MINUTE: "1000"
         run: docker compose --profile app up -d --build --wait
 
       - name: Ejecutar Playwright en todos los navegadores y viewports
