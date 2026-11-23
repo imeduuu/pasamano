@@ -9,6 +9,8 @@ import cl.trato.geo.application.port.RegionRepository;
 import cl.trato.identity.application.port.SellerProfileRepository;
 import cl.trato.identity.domain.UserId;
 import cl.trato.shared.domain.Money;
+import cl.trato.shared.domain.exception.BusinessRuleViolationException;
+import cl.trato.shared.domain.exception.ConflictException;
 import cl.trato.shared.domain.exception.DomainValidationException;
 import cl.trato.shared.domain.exception.ResourceNotFoundException;
 import java.util.UUID;
@@ -93,6 +95,31 @@ public class ManageListings {
     }
     current.delete();
     listings.save(current);
+  }
+
+  /** Cambia el estado mediante las transiciones del agregado (RF-PUB-05/RF-PUB-07). */
+  @Transactional
+  public Listing transition(UserId user, UUID id, long version, String action) {
+    Listing current = requireListing(id);
+    requireOwner(current, user);
+    if (!Long.valueOf(version).equals(current.version())) {
+      throw new ConflictException(
+          "CONCURRENT_MODIFICATION", "La publicación cambió. Recarga antes de continuar.");
+    }
+    try {
+      switch (action) {
+        case "publish" -> current.publish();
+        case "pause" -> current.pause();
+        case "activate" -> current.reactivate();
+        default -> throw new IllegalArgumentException("Acción desconocida: " + action);
+      }
+    } catch (BusinessRuleViolationException exception) {
+      if ("INVALID_LISTING_TRANSITION".equals(exception.code())) {
+        throw new ConflictException(exception.code(), exception.getMessage());
+      }
+      throw exception;
+    }
+    return listings.save(current);
   }
 
   public Listing getOwned(UserId user, UUID id) {

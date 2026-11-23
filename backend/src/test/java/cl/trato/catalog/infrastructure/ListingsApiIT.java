@@ -92,6 +92,82 @@ class ListingsApiIT {
         .andExpect(status().isNoContent());
   }
 
+  /**
+   * RF-PUB-05/RF-PUB-07: el vendedor publica, pausa y activa usando las transiciones del dominio.
+   */
+  @Test
+  void publishes_pauses_and_activates_listing_and_zero_stock_marks_it_sold_out() throws Exception {
+    MvcResult created = createListing(body());
+    UUID id = listingId(created);
+    jdbc.update(
+        "insert into listing_images(id,listing_id,position,image_reference) values (?,?,?,?)",
+        UUID.randomUUID(),
+        id,
+        0,
+        "listings/test/imagen.jpg");
+
+    MvcResult published =
+        transition("publish", id, "\"0\"")
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("ACTIVA"))
+            .andReturn();
+    transition("pause", id, published.getResponse().getHeader("ETag"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("PAUSADA"));
+    MvcResult paused =
+        transition("activate", id, "\"2\"")
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("ACTIVA"))
+            .andReturn();
+
+    mvc.perform(
+            patch("/api/v1/listings/" + id)
+                .header("Authorization", seller.bearer())
+                .header("If-Match", paused.getResponse().getHeader("ETag"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body().replace("\"stock\":2", "\"stock\":0")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("AGOTADA"));
+  }
+
+  @Test
+  void rejects_invalid_publish_transition_with_conflict_code() throws Exception {
+    UUID id = listingId(createListing(body()));
+    transition("publish", id, "\"0\"")
+        .andExpect(status().isUnprocessableContent())
+        .andExpect(jsonPath("$.code").value("LISTING_IMAGE_REQUIRED"));
+  }
+
+  @Test
+  void invalid_lifecycle_transition_returns_conflict() throws Exception {
+    UUID id = listingId(createListing(body()));
+    transition("pause", id, "\"0\"")
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("INVALID_LISTING_TRANSITION"));
+  }
+
+  private MvcResult createListing(String content) throws Exception {
+    return mvc.perform(
+            post("/api/v1/listings")
+                .header("Authorization", seller.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content))
+        .andExpect(status().isCreated())
+        .andReturn();
+  }
+
+  private UUID listingId(MvcResult result) throws Exception {
+    return UUID.fromString(JsonPath.read(result.getResponse().getContentAsString(), "$.id"));
+  }
+
+  private org.springframework.test.web.servlet.ResultActions transition(
+      String action, UUID id, String etag) throws Exception {
+    return mvc.perform(
+        post("/api/v1/listings/" + id + "/" + action)
+            .header("Authorization", seller.bearer())
+            .header("If-Match", etag));
+  }
+
   @Test
   void returns_expected_auth_validation_forbidden_not_found_conflict_and_precondition_statuses()
       throws Exception {

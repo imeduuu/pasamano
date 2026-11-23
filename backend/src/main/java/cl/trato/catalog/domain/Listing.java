@@ -47,8 +47,8 @@ public final class Listing {
     if (title == null || title.strip().length() < 10 || title.strip().length() > 80) {
       throw invalid("El título debe tener entre 10 y 80 caracteres.");
     }
-    if (description == null || description.length() > 4000) {
-      throw invalid("La descripción no puede superar los 4.000 caracteres.");
+    if (description == null || description.isBlank() || description.length() > 4000) {
+      throw invalid("La descripción es obligatoria y no puede superar los 4.000 caracteres.");
     }
     if (price == null || !price.isValidPrice()) {
       throw invalid("El precio no cumple RN-01.");
@@ -235,7 +235,9 @@ public final class Listing {
         seller,
         id,
         version,
-        status,
+        status == ListingStatus.ACTIVA && stockTotal - stockReserved == 0
+            ? ListingStatus.AGOTADA
+            : status,
         images);
   }
 

@@ -39,7 +39,7 @@ class ListingsController {
 
   record ListingRequest(
       @NotBlank @Size(min = 10, max = 80) String title,
-      @NotNull @Size(max = 4000) String description,
+      @NotBlank @Size(max = 4000) String description,
       @Min(1) long price,
       @Min(0) int stock,
       @NotNull ListingCondition condition,
@@ -123,6 +123,16 @@ class ListingsController {
       @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch) {
     listings.delete(user(jwt), id, parseVersion(ifMatch));
     return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/{id}/{action:publish|pause|activate}")
+  ResponseEntity<ListingResponse> transition(
+      @AuthenticationPrincipal Jwt jwt,
+      @PathVariable UUID id,
+      @PathVariable String action,
+      @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch) {
+    Listing saved = listings.transition(user(jwt), id, parseVersion(ifMatch), action);
+    return ResponseEntity.ok().eTag(etag(saved.version())).body(ListingResponse.from(saved));
   }
 
   private static UserId user(Jwt jwt) {
