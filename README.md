@@ -119,6 +119,22 @@ npm start                       # http://localhost:4200, con proxy /api -> local
 Perfiles del backend: `local` (desarrollo), `test` (pruebas, con Testcontainers) y `demo`
 (logs JSON). Toda la configuración sensible llega por variables de entorno (ver `.env.example`).
 
+En el perfil `demo` configura obligatoriamente estas variables antes de iniciar el backend:
+
+| Variable | Requisito |
+| --- | --- |
+| `DB_URL` | URL JDBC de PostgreSQL |
+| `DB_USERNAME`, `DB_PASSWORD` | Credenciales de PostgreSQL |
+| `JWT_SECRET` | Clave aleatoria propia de al menos 32 bytes; no uses el valor de desarrollo de Docker Compose. |
+| `REFRESH_COOKIE_SECURE` | `true`; el backend rechaza `false` fuera de `local` y `test`. |
+| `S3_ENDPOINT` | Endpoint HTTPS del almacenamiento compatible con S3 |
+| `S3_ACCESS_KEY`, `S3_SECRET_KEY` | Credenciales del almacenamiento S3 |
+| `FRONTEND_BASE_URL`, `CORS_ALLOWED_ORIGINS` | URL pública del frontend; configura los orígenes reales del despliegue. |
+
+Genera un secreto, por ejemplo, con `openssl rand -base64 48`. Las validaciones de inicio
+protegen JWT y la cookie de refresco según las decisiones [#27](docs/decisiones-pendientes.md)
+y [#51](docs/decisiones-pendientes.md).
+
 ### Datos semilla locales
 
 Al iniciar con el perfil `local` se crean de forma idempotente categorías iniciales de dos niveles
