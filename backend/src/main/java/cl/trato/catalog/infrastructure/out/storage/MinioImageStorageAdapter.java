@@ -3,6 +3,8 @@ package cl.trato.catalog.infrastructure.out.storage;
 import cl.trato.catalog.application.port.ImageStorage;
 import java.net.URI;
 import java.time.Duration;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -57,11 +59,37 @@ public class MinioImageStorageAdapter implements ImageStorage, AutoCloseable {
     client.putObject(
         PutObjectRequest.builder().bucket(bucket).key(key).contentType(contentType).build(),
         RequestBody.fromBytes(content));
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(
+          new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+              if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+                delete(key);
+              }
+            }
+          });
+    }
   }
 
   @Override
   public void delete(String key) {
     client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
+  }
+
+  @Override
+  public void deleteAfterCommit(String key) {
+    if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+      delete(key);
+      return;
+    }
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+          @Override
+          public void afterCommit() {
+            delete(key);
+          }
+        });
   }
 
   @Override

@@ -9,6 +9,9 @@ public interface ImageStorage {
   /** Elimina la imagen asociada a la clave indicada. */
   void delete(String key);
 
+  /** Elimina el objeto solo si la transacción de base de datos confirma. */
+  void deleteAfterCommit(String key);
+
   /** Obtiene una URL temporal de lectura para la clave indicada. */
   String getUrl(String key);
 }

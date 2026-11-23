@@ -2,21 +2,29 @@ package cl.trato.catalog.infrastructure;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import cl.trato.catalog.application.port.ImageStorage;
 import cl.trato.support.IntegrationTest;
 import cl.trato.support.RecordingEmailSender;
 import com.jayway.jsonpath.JsonPath;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.UUID;
+import javax.imageio.ImageIO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -26,6 +34,7 @@ class ListingsApiIT {
   @Autowired MockMvc mvc;
   @Autowired RecordingEmailSender mail;
   @Autowired JdbcTemplate jdbc;
+  @MockitoBean ImageStorage imageStorage;
 
   private record Session(String accessToken) {
     String bearer() {
@@ -41,8 +50,77 @@ class ListingsApiIT {
       "stock":2,"condition":"USADO","categoryId":"%s","region":"13","commune":"13101"}
       """;
 
+  @Test
+  void HU09_upload_validates_format_limit_ownership_and_missing_listing() throws Exception {
+    UUID listing = listingId(createListing(body()));
+    String path = "/api/v1/listings/" + listing + "/images";
+    mvc.perform(
+            multipart(path)
+                .file(new MockMultipartFile("image", "bad.jpg", "image/jpeg", new byte[] {1, 2, 3}))
+                .header("Authorization", seller.bearer()))
+        .andExpect(status().isBadRequest());
+    mvc.perform(
+            multipart(path)
+                .file(
+                    new MockMultipartFile(
+                        "image", "large.jpg", "image/jpeg", new byte[5 * 1024 * 1024 + 1]))
+                .header("Authorization", seller.bearer()))
+        .andExpect(status().isBadRequest());
+    byte[] jpeg = jpeg();
+    java.util.List<String> imageIds = new java.util.ArrayList<>();
+    for (int index = 0; index < 8; index++) {
+      MvcResult uploaded =
+          mvc.perform(
+                  multipart(path)
+                      .file(new MockMultipartFile("image", "ok.jpg", "image/jpeg", jpeg))
+                      .header("Authorization", seller.bearer()))
+              .andExpect(status().isCreated())
+              .andReturn();
+      imageIds.add(JsonPath.read(uploaded.getResponse().getContentAsString(), "$.id"));
+    }
+    mvc.perform(
+            multipart(path)
+                .file(new MockMultipartFile("image", "ok.jpg", "image/jpeg", jpeg))
+                .header("Authorization", seller.bearer()))
+        .andExpect(status().isBadRequest());
+    java.util.Collections.reverse(imageIds);
+    mvc.perform(
+            put(path + "/order")
+                .header("Authorization", seller.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"imageIds\":[\"" + String.join("\",\"", imageIds) + "\"]}"))
+        .andExpect(status().isNoContent());
+    UUID primary = UUID.fromString(imageIds.getFirst());
+    org.assertj.core.api.Assertions.assertThat(
+            jdbc.queryForObject(
+                "select position from listing_images where id = ?", Integer.class, primary))
+        .isZero();
+    mvc.perform(delete(path + "/" + primary).header("Authorization", seller.bearer()))
+        .andExpect(status().isNoContent());
+    Session other = createSeller("image-owner-" + UUID.randomUUID() + "@ejemplo.cl", true, "otro");
+    mvc.perform(
+            multipart(path)
+                .file(new MockMultipartFile("image", "ok.jpg", "image/jpeg", jpeg))
+                .header("Authorization", other.bearer()))
+        .andExpect(status().isForbidden());
+    mvc.perform(
+            multipart("/api/v1/listings/" + UUID.randomUUID() + "/images")
+                .file(new MockMultipartFile("image", "ok.jpg", "image/jpeg", jpeg))
+                .header("Authorization", seller.bearer()))
+        .andExpect(status().isNotFound());
+  }
+
+  private byte[] jpeg() throws Exception {
+    BufferedImage image = new BufferedImage(2, 2, BufferedImage.TYPE_INT_RGB);
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    ImageIO.write(image, "jpeg", output);
+    return output.toByteArray();
+  }
+
   @BeforeEach
   void setUp() throws Exception {
+    org.mockito.Mockito.when(imageStorage.getUrl(org.mockito.ArgumentMatchers.anyString()))
+        .thenReturn("https://images.example.test/signed");
     String suffix = UUID.randomUUID().toString().substring(0, 8);
     UUID root = UUID.randomUUID();
     category = UUID.randomUUID();

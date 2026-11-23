@@ -3,12 +3,14 @@ package cl.trato.catalog.infrastructure.config;
 import cl.trato.catalog.application.GetCategories;
 import cl.trato.catalog.application.GetListings;
 import cl.trato.catalog.application.ManageCategories;
+import cl.trato.catalog.application.ManageListingImages;
 import cl.trato.catalog.application.ManageListings;
 import cl.trato.catalog.application.port.AuditLog;
 import cl.trato.catalog.application.port.CategoryListingCount;
 import cl.trato.catalog.application.port.CategoryRepository;
 import cl.trato.catalog.application.port.ImageProcessor;
 import cl.trato.catalog.application.port.ImageStorage;
+import cl.trato.catalog.application.port.ListingImages;
 import cl.trato.catalog.application.port.ListingRepository;
 import cl.trato.catalog.infrastructure.out.image.ImageProcessorAdapter;
 import cl.trato.catalog.infrastructure.out.storage.MinioImageStorageAdapter;
@@ -72,6 +74,15 @@ public class CatalogConfiguration {
   GetListings getListings(
       ListingRepository listings, SellerProfileRepository sellers, ImageStorage images) {
     return new GetListings(listings, sellers, images);
+  }
+
+  @Bean
+  ManageListingImages manageListingImages(
+      ManageListings listings,
+      ListingImages listingImages,
+      ImageProcessor processor,
+      ImageStorage storage) {
+    return new ManageListingImages(listings, listingImages, processor, storage);
   }
 
   @Bean
