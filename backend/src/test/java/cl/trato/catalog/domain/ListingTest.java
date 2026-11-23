@@ -40,6 +40,28 @@ class ListingTest {
   }
 
   @Test
+  void updates_active_listing_without_changing_its_lifecycle_state() {
+    Listing listing = draft(3);
+    listing.addImage("img");
+    listing.publish();
+
+    Listing updated =
+        listing.update(
+            "Producto actualizado",
+            "Nueva descripción",
+            Money.price(200),
+            4,
+            ListingCondition.USADO,
+            LEAF,
+            "13",
+            "13101");
+
+    assertThat(updated.status()).isEqualTo(ListingStatus.ACTIVA);
+    assertThat(updated.title()).isEqualTo("Producto actualizado");
+    assertThat(updated.images()).containsExactly("img");
+  }
+
+  @Test
   void enforces_listing_fields_and_stock_invariants() {
     assertThatThrownBy(() ->
             Listing.create(

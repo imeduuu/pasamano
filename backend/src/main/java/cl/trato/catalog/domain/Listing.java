@@ -209,6 +209,36 @@ public final class Listing {
     status = ListingStatus.ELIMINADA;
   }
 
+  /** Reemplaza los datos editables conservando identidad, vendedor y estado; RF-PUB-04. */
+  public Listing update(
+      String title,
+      String description,
+      Money price,
+      int stockTotal,
+      ListingCondition condition,
+      Category category,
+      String region,
+      String commune) {
+    if (status == ListingStatus.ELIMINADA || status == ListingStatus.BLOQUEADA) {
+      throw invalidTransition("editar");
+    }
+    return new Listing(
+        title,
+        description,
+        price,
+        stockTotal,
+        stockReserved,
+        condition,
+        category,
+        region,
+        commune,
+        seller,
+        id,
+        version,
+        status,
+        images);
+  }
+
   public UUID id() {
     return id;
   }
