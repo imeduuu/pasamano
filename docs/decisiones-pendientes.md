@@ -80,9 +80,10 @@ HU-07, HU-08, HU-09 y HU-10 están implementadas. Las pruebas de backend, fronte
 | 50 | Foto de perfil del vendedor | Se mantiene URL HTTP(S) opcional; la carga de foto queda pendiente para un incremento futuro. | La carga de Sprint 2 cubre las imágenes de publicaciones, no las fotos de perfil. | Aceptada como deuda |
 | 51 | Cookie Secure en Compose local | `REFRESH_COOKIE_SECURE=false` por defecto para HTTP local; habilitar `true` en entornos HTTPS. | WebKit no conserva cookies Secure sobre HTTP localhost y no restaura la sesión; con este valor la matriz E2E puede validar renovación real y el despliegue seguro mantiene Secure habilitado. | Resuelta |
 
-| 52 | Fecha de publicaciÃ³n para bÃºsqueda (HU-12, ADR-004) | Agregar `listings.published_at` nullable e indexarla; su escritura al publicar queda a cargo del flujo de publicaciÃ³n. | El esquema no guardaba esta fecha y asignarla retroactivamente habrÃ­a inventado fechas para borradores y publicaciones antiguas. | Abierta |
+| 52 | Fecha de publicación para búsqueda (HU-12, ADR-004) | `listings.published_at` se establece en la primera transición a ACTIVA con hora de PostgreSQL; se conserva al pausar y reactivar. | Permite ordenar por más recientes sin inventar fechas para datos previos ni cambiarla en una reactivación. | Resuelta |
 
 | 53 | Normalización de criterios de búsqueda (CU-04) | Cuando el precio mínimo supera al máximo, se eliminan ambos límites; una página negativa se normaliza a 0 sin agregar un ajuste. | CU-04 disponible indica que deben aplicarse valores por defecto e informarse los ajustes, pero no determina si se conserva uno de los límites ni el tratamiento de una página negativa. | Resuelta |
+| 54 | Filtro de reputación antes de tener reseñas (RF-BUS-03) | Si llega `minRating`, se excluyen todos los vendedores con reputación "Vendedor nuevo". | Aún no existen calificaciones persistidas para calcular un promedio verificable; no se asume una puntuación para esos vendedores. | Resuelta |
 
 ## Abiertas
 

@@ -399,6 +399,32 @@ class ListingsApiIT {
         .andExpect(status().isConflict());
   }
 
+  /** RF-BUS-01 a RF-BUS-04, CU-04: busqueda publica y validacion de parametros. */
+  @Test
+  void searches_active_listings_and_rejects_invalid_search_parameters() throws Exception {
+    UUID id = listingId(createListing(body()));
+    jdbc.update(
+        "insert into listing_images(id,listing_id,position,image_reference,thumbnail_reference) values (?,?,?,?,?)",
+        UUID.randomUUID(),
+        id,
+        0,
+        "listings/test/camara.jpg",
+        "listings/test/camara-thumb.jpg");
+    transition("publish", id, "\"0\"").andExpect(status().isOk());
+
+    mvc.perform(get("/api/v1/listings?q=Mesa&category=" + category + "&sort=relevance"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.total").value(1))
+        .andExpect(jsonPath("$.totalPages").value(1))
+        .andExpect(jsonPath("$.results[0].id").value(id.toString()))
+        .andExpect(jsonPath("$.results[0].thumbnail").value("listings/test/camara-thumb.jpg"))
+        .andExpect(jsonPath("$.results[0].storeName").exists())
+        .andExpect(jsonPath("$.results[0].reputation").value("Vendedor nuevo"));
+    mvc.perform(get("/api/v1/listings?sort=cheapest")).andExpect(status().isBadRequest());
+    mvc.perform(get("/api/v1/listings?condition=EXCELLENT")).andExpect(status().isBadRequest());
+    mvc.perform(get("/api/v1/listings?minRating=6")).andExpect(status().isBadRequest());
+  }
+
   private String body() {
     return BODY.formatted(category);
   }

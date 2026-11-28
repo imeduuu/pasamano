@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import cl.trato.search.application.port.ListingSearch;
 import cl.trato.search.domain.SearchCriteria;
+import cl.trato.search.domain.SearchListing;
 import cl.trato.search.domain.SearchPage;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,19 @@ class SearchListingsTest {
     ListingSearch listingSearch = mock(ListingSearch.class);
     SearchCriteria criteria =
         SearchCriteria.of(null, null, 500L, 100L, null, null, null, null, 0, 51);
-    SearchPage page = new SearchPage(List.of(UUID.randomUUID()), 12);
+    SearchPage page =
+        new SearchPage(
+            List.of(
+                new SearchListing(
+                    UUID.randomUUID(),
+                    "Libro",
+                    1200,
+                    null,
+                    "13",
+                    "13101",
+                    "Tienda",
+                    "Vendedor nuevo")),
+            12);
     when(listingSearch.search(criteria)).thenReturn(page);
 
     SearchListings.Result result = new SearchListings(listingSearch).execute(criteria);
