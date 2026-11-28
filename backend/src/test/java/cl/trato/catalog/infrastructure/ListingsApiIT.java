@@ -425,6 +425,43 @@ class ListingsApiIT {
     mvc.perform(get("/api/v1/listings?minRating=6")).andExpect(status().isBadRequest());
   }
 
+  /** HU-14: publicaciones públicas y paginadas de una tienda activa. */
+  @Test
+  void seller_listings_are_active_recent_first_and_missing_or_suspended_sellers_are_hidden()
+      throws Exception {
+    UUID older = listingId(createListing(body().replace("Mesa de comedor usada", "Mesa antigua")));
+    UUID newer = listingId(createListing(body().replace("Mesa de comedor usada", "Mesa reciente")));
+    createListing(body().replace("Mesa de comedor usada", "Borrador invisible"));
+    for (UUID id : java.util.List.of(older, newer)) {
+      jdbc.update(
+          "insert into listing_images(id,listing_id,position,image_reference,thumbnail_reference) values (?,?,?,?,?)",
+          UUID.randomUUID(),
+          id,
+          0,
+          "listings/test/foto.jpg",
+          "listings/test/thumb.jpg");
+      transition("publish", id, "\"0\"").andExpect(status().isOk());
+    }
+    jdbc.update("update listings set published_at = now() - interval '2 days' where id = ?", older);
+    jdbc.update("update listings set published_at = now() - interval '1 day' where id = ?", newer);
+
+    UUID sellerId =
+        jdbc.queryForObject("select seller_id from listings where id = ?", UUID.class, older);
+    mvc.perform(get("/api/v1/sellers/" + sellerId + "/listings?size=1&page=0"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.total").value(2))
+        .andExpect(jsonPath("$.totalPages").value(2))
+        .andExpect(jsonPath("$.results[0].id").value(newer.toString()));
+    mvc.perform(get("/api/v1/sellers/" + sellerId + "/listings?size=1&page=1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.results[0].id").value(older.toString()));
+    mvc.perform(get("/api/v1/sellers/" + UUID.randomUUID() + "/listings"))
+        .andExpect(status().isNotFound());
+
+    jdbc.update("update users set status = 'SUSPENDED' where id = ?", sellerId);
+    mvc.perform(get("/api/v1/sellers/" + sellerId + "/listings")).andExpect(status().isNotFound());
+  }
+
   private String body() {
     return BODY.formatted(category);
   }

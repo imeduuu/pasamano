@@ -16,7 +16,35 @@ public record SearchCriteria(
     SearchOrder order,
     int page,
     int size,
-    List<SearchAdjustment> adjustments) {
+    List<SearchAdjustment> adjustments,
+    UUID sellerId) {
+
+  public SearchCriteria(
+      String text,
+      UUID categoryId,
+      Long minimumPrice,
+      Long maximumPrice,
+      String condition,
+      String region,
+      Double minimumReputation,
+      SearchOrder order,
+      int page,
+      int size,
+      List<SearchAdjustment> adjustments) {
+    this(
+        text,
+        categoryId,
+        minimumPrice,
+        maximumPrice,
+        condition,
+        region,
+        minimumReputation,
+        order,
+        page,
+        size,
+        adjustments,
+        null);
+  }
 
   public static final int DEFAULT_PAGE_SIZE = 20;
   public static final int MAX_PAGE_SIZE = 50;
@@ -72,5 +100,21 @@ public record SearchCriteria(
         page,
         size == null ? 0 : size,
         List.of());
+  }
+
+  public SearchCriteria forSeller(UUID id) {
+    return new SearchCriteria(
+        text,
+        categoryId,
+        minimumPrice,
+        maximumPrice,
+        condition,
+        region,
+        minimumReputation,
+        order,
+        page,
+        size,
+        adjustments,
+        id);
   }
 }

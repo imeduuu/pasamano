@@ -56,6 +56,10 @@ public class PostgresListingSearchAdapter implements ListingSearch {
       values.put("region", criteria.region());
       where.append(" AND l.region = :region");
     }
+    if (criteria.sellerId() != null) {
+      values.put("sellerId", criteria.sellerId());
+      where.append(" AND l.seller_id = :sellerId");
+    }
     // Until reviews exist, the only known reputation is “Vendedor nuevo”.
     if (criteria.minimumReputation() != null) {
       where.append(" AND sp.user_id IS NOT NULL AND false");
@@ -98,6 +102,17 @@ public class PostgresListingSearchAdapter implements ListingSearch {
                     rs.getString("store_name"),
                     rs.getString("reputation")));
     return new SearchPage(results, total);
+  }
+
+  @Override
+  public boolean isActiveSeller(java.util.UUID sellerId) {
+    Integer count =
+        jdbc.queryForObject(
+            "SELECT count(*) FROM users u JOIN seller_profiles sp ON sp.user_id = u.id "
+                + "WHERE u.id = :sellerId AND u.status = 'ACTIVE'",
+            new MapSqlParameterSource("sellerId", sellerId),
+            Integer.class);
+    return count != null && count > 0;
   }
 
   private static String orderBy(SearchOrder order, boolean hasText) {
