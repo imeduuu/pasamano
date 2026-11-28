@@ -227,7 +227,7 @@ class UserTest {
   @Test
   void updating_the_profile_replaces_it() {
     User user = newUser();
-    Profile profile = new Profile(new DisplayName("Ana P."), "Biobío", "Concepción", null);
+    Profile profile = new Profile(new DisplayName("Ana P."), "08", "08101", null);
 
     user.updateProfile(profile, NOW.plusSeconds(30));
 

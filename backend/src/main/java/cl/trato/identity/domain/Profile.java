@@ -9,21 +9,31 @@ import java.net.URISyntaxException;
  * vacíos se guardan como {@code null} (minimización de datos, RNF-LEG-01).
  *
  * @param name nombre visible
- * @param region región de Chile (texto libre, máx. 60)
- * @param commune comuna (texto libre, máx. 60)
+ * @param region código CUT de dos dígitos de la región
+ * @param commune código CUT de cinco dígitos de la comuna
  * @param photoUrl URL absoluta http(s) de la foto, máx. 500
  */
 public record Profile(DisplayName name, String region, String commune, String photoUrl) {
 
-  private static final int MAX_PLACE_LENGTH = 60;
+  private static final java.util.regex.Pattern REGION_CODE =
+      java.util.regex.Pattern.compile("\\d{2}");
+  private static final java.util.regex.Pattern COMMUNE_CODE =
+      java.util.regex.Pattern.compile("\\d{5}");
   private static final int MAX_URL_LENGTH = 500;
 
   public Profile {
     if (name == null) {
       throw new DomainValidationException("INVALID_NAME", "El nombre es obligatorio.");
     }
-    region = optionalPlace(region, "INVALID_REGION", "La región");
-    commune = optionalPlace(commune, "INVALID_COMMUNE", "La comuna");
+    region =
+        optionalCode(
+            region, REGION_CODE, "INVALID_REGION", "El código de región debe tener 2 dígitos.");
+    commune =
+        optionalCode(
+            commune, COMMUNE_CODE, "INVALID_COMMUNE", "El código de comuna debe tener 5 dígitos.");
+    if ((region == null) != (commune == null)) {
+      throw new DomainValidationException("INVALID_LOCATION", "Debes indicar región y comuna.");
+    }
     photoUrl = optionalPhotoUrl(photoUrl);
   }
 
@@ -31,14 +41,14 @@ public record Profile(DisplayName name, String region, String commune, String ph
     return new Profile(name, null, null, null);
   }
 
-  private static String optionalPlace(String raw, String code, String label) {
+  private static String optionalCode(
+      String raw, java.util.regex.Pattern pattern, String code, String message) {
     if (raw == null || raw.isBlank()) {
       return null;
     }
     String trimmed = raw.strip();
-    if (trimmed.length() > MAX_PLACE_LENGTH) {
-      throw new DomainValidationException(
-          code, label + " puede tener como máximo " + MAX_PLACE_LENGTH + " caracteres.");
+    if (!pattern.matcher(trimmed).matches()) {
+      throw new DomainValidationException(code, message);
     }
     return trimmed;
   }

@@ -44,10 +44,10 @@ public class UserJpaEntity {
   @Column(name = "role", length = 20)
   private Set<Role> roles = EnumSet.noneOf(Role.class);
 
-  @Column(length = 60)
+  @Column(name = "region_code", length = 2)
   private String region;
 
-  @Column(length = 60)
+  @Column(name = "commune_code", length = 5)
   private String commune;
 
   @Column(name = "photo_url", length = 500)

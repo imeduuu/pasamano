@@ -65,7 +65,7 @@ class IdentityPersistenceIT {
   void saves_and_loads_a_user_with_roles_profile_and_lockout_state() {
     User user = newUser();
     user.verifyEmail(NOW);
-    user.updateProfile(new Profile(new DisplayName("Ana"), "Biobío", "Concepción", null), NOW);
+    user.updateProfile(new Profile(new DisplayName("Ana"), "08", "08101", null), NOW);
     for (int i = 0; i < 2; i++) {
       user.registerFailedLogin(NOW);
     }
@@ -76,7 +76,7 @@ class IdentityPersistenceIT {
     assertThat(loaded.email()).isEqualTo(user.email());
     assertThat(loaded.status()).isEqualTo(UserStatus.ACTIVE);
     assertThat(loaded.roles()).containsExactly(Role.USER);
-    assertThat(loaded.profile().region()).isEqualTo("Biobío");
+    assertThat(loaded.profile().region()).isEqualTo("08");
     assertThat(loaded.failedLoginAttempts()).isEqualTo(2);
     assertThat(loaded.createdAt()).isEqualTo(NOW);
     assertThat(loaded.version()).isZero();

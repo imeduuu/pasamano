@@ -12,8 +12,8 @@ import java.util.Set;
  * @param id identificador
  * @param email correo
  * @param name nombre visible
- * @param region región
- * @param commune comuna
+ * @param region código CUT de región
+ * @param commune código CUT de comuna
  * @param photoUrl URL de la foto
  * @param status estado de la cuenta
  * @param roles roles

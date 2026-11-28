@@ -24,7 +24,7 @@ siguiente refinamiento. Cada punto puede confirmarse, cambiarse o pasar a un ADR
 | 10 | Nombres de estados y roles | En código en inglés: `PENDING_VERIFICATION`, `ACTIVE`, `SUSPENDED`; `USER`, `ADMIN`. El Javadoc indica la equivalencia con el SRS (PENDIENTE_VERIFICACION, ACTIVA, SUSPENDIDA, USUARIO) | Convención de código en inglés. | Resuelta |
 | 11 | Nombre y nombre visible | Un solo campo `name` (2 a 60 caracteres): se ingresa al registrarse y se edita en el perfil | Minimización de datos. | Resuelta |
 | 12 | Foto de perfil | Por ahora es una URL http(s) opcional; la subida a MinIO llega con las imágenes de publicaciones (Sprint 2) | Evita adelantar el adaptador de almacenamiento. | Aceptada como deuda |
-| 13 | Región y comuna | Texto libre de hasta 60 caracteres, sin catálogo | No hay catálogo de regiones y comunas en el SRS. Desde la #39 existe el catálogo oficial (`GET /api/v1/regions`); falta usarlo al validar. | Abierta |
+| 13 | Región y comuna del perfil (RF-USR-01) | El perfil guarda códigos CUT de región (2 dígitos) y comuna (5 dígitos); ambos son opcionales y se borran juntos. La comuna debe pertenecer a la región según la regla del módulo `geo`, consumida mediante un puerto de aplicación. La API devuelve los códigos; la interfaz usa los selectores región → comuna del formulario de publicación. La migración V12 asigna nombres existentes tras normalizar mayúsculas, espacios y tildes; los nombres sin coincidencia exacta quedan en `NULL`. | Reutiliza el catálogo oficial de la #39 sin acoplar identidad a la infraestructura de geo y evita conservar ubicaciones escritas fuera del catálogo. | Resuelta |
 | 14 | Largo máximo de contraseña | 72 bytes UTF-8 | BCrypt ignora lo que viene después; además el adaptador rechaza explícitamente más de 72 bytes. | Resuelta |
 | 15 | Lista de contraseñas comunes | 2.336 entradas de ≥ 10 caracteres (SecLists, licencia MIT) más variantes chilenas, en `backend/src/main/resources/security/common-passwords.txt` | Por debajo de 10 caracteres ya las rechaza el largo mínimo. | Resuelta |
 | 16 | Bloqueo por intentos | Al quinto intento fallido se bloquea 15 min y el contador vuelve a 0. Se informa el bloqueo (423) aunque eso revele que la cuenta existe | CU-02 2b pide informarlo. | Resuelta |
@@ -82,7 +82,6 @@ HU-07, HU-08, HU-09 y HU-10 están implementadas. Las pruebas de backend, fronte
 
 ## Abiertas
 
-- **#13:** Región y comuna: falta usar el catálogo oficial al validar.
 - **#25:** Textos legales definitivos (RNF-LEG-01).
 - **#29:** Revisar el executor de correos si se usa `@Async` en otros módulos.
 - **#48:** Incorporar capturas de producto al README.

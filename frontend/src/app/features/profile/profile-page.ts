@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { ApiClient } from '../../core/http/api-client';
 import { toProblem } from '../../core/http/problem';
 import {
   PASSWORD_MIN_LENGTH,
@@ -10,6 +11,12 @@ import {
   focusFirstInvalid,
   showError,
 } from '../../shared/forms/form-utils';
+
+interface Region {
+  code: string;
+  name: string;
+  communes: { code: string; name: string }[];
+}
 
 /** RF-USR-01 (HU-06): ver y editar el perfil propio; RF-AUT-07: cambiar la contraseña. */
 @Component({
@@ -21,12 +28,13 @@ export class ProfilePage implements OnInit {
   protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly api = inject(ApiClient);
   private readonly fb = inject(FormBuilder).nonNullable;
 
   protected readonly profileForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60)]],
-    region: ['', [Validators.maxLength(60)]],
-    commune: ['', [Validators.maxLength(60)]],
+    region: [''],
+    commune: [''],
     photoUrl: ['', [Validators.maxLength(500), Validators.pattern(/^(https?:\/\/\S+)?$/)]],
   });
   protected readonly passwordForm = this.fb.group({
@@ -38,6 +46,8 @@ export class ProfilePage implements OnInit {
   });
 
   protected readonly saving = signal(false);
+  protected readonly regions = signal<Region[]>([]);
+  protected readonly regionCode = signal('');
   protected readonly profileMessage = signal<string | null>(null);
   protected readonly profileError = signal<string | null>(null);
   protected readonly passwordError = signal<string | null>(null);
@@ -48,8 +58,6 @@ export class ProfilePage implements OnInit {
       minlength: 'El nombre debe tener al menos 2 caracteres.',
       maxlength: 'El nombre puede tener como máximo 60 caracteres.',
     },
-    region: { maxlength: 'La región puede tener como máximo 60 caracteres.' },
-    commune: { maxlength: 'La comuna puede tener como máximo 60 caracteres.' },
     photoUrl: {
       pattern: 'La foto debe ser una URL que empiece con http:// o https://.',
       maxlength: 'La URL es demasiado larga.',
@@ -65,12 +73,23 @@ export class ProfilePage implements OnInit {
   protected readonly errorMessage = errorMessage;
 
   ngOnInit(): void {
+    this.api.get<Region[]>('/regions').subscribe({ next: (regions) => this.regions.set(regions) });
     const current = this.auth.user();
     if (current) {
       this.fill();
     } else {
       this.auth.loadProfile().subscribe({ next: () => this.fill() });
     }
+  }
+
+  protected get communes(): Region['communes'] {
+    return this.regions().find((region) => region.code === this.regionCode())?.communes ?? [];
+  }
+
+  protected selectRegion(code: string): void {
+    this.regionCode.set(code);
+    this.profileForm.controls.region.setValue(code);
+    this.profileForm.controls.commune.setValue('');
   }
 
   saveProfile(): void {
@@ -137,6 +156,7 @@ export class ProfilePage implements OnInit {
         commune: user.commune ?? '',
         photoUrl: user.photoUrl ?? '',
       });
+      this.regionCode.set(user.region ?? '');
     }
   }
 

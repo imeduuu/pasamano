@@ -67,23 +67,31 @@ class ProfileTest {
     }
 
     @Test
-    void keeps_region_and_commune_trimmed() {
-      Profile profile = new Profile(new DisplayName("Ana"), " Valparaíso ", " Viña del Mar ", null);
+    void stores_cut_codes() {
+      Profile profile = new Profile(new DisplayName("Ana"), "05", "05109", null);
 
-      assertThat(profile.region()).isEqualTo("Valparaíso");
-      assertThat(profile.commune()).isEqualTo("Viña del Mar");
+      assertThat(profile.region()).isEqualTo("05");
+      assertThat(profile.commune()).isEqualTo("05109");
     }
 
     @Test
-    void region_and_commune_have_at_most_sixty_characters() {
-      assertThatThrownBy(() -> new Profile(new DisplayName("Ana"), "r".repeat(61), null, null))
+    void region_and_commune_must_have_cut_code_lengths() {
+      assertThatThrownBy(() -> new Profile(new DisplayName("Ana"), "5", "05109", null))
           .isInstanceOf(DomainValidationException.class)
           .extracting("code")
           .isEqualTo("INVALID_REGION");
-      assertThatThrownBy(() -> new Profile(new DisplayName("Ana"), null, "c".repeat(61), null))
+      assertThatThrownBy(() -> new Profile(new DisplayName("Ana"), "05", "0510", null))
           .isInstanceOf(DomainValidationException.class)
           .extracting("code")
           .isEqualTo("INVALID_COMMUNE");
+    }
+
+    @Test
+    void region_and_commune_must_be_set_or_cleared_together() {
+      assertThatThrownBy(() -> new Profile(new DisplayName("Ana"), "05", null, null))
+          .isInstanceOf(DomainValidationException.class)
+          .extracting("code")
+          .isEqualTo("INVALID_LOCATION");
     }
 
     @ParameterizedTest

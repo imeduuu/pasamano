@@ -73,12 +73,11 @@ class ProfileAndSecurityIT {
             patch("/api/v1/me")
                 .header("Authorization", session.bearer())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    "{\"name\":\"Ana P.\",\"region\":\"Valparaíso\",\"commune\":\"Viña del Mar\"}"))
+                .content("{\"name\":\"Ana P.\",\"region\":\"05\",\"commune\":\"05109\"}"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Ana P."))
-        .andExpect(jsonPath("$.region").value("Valparaíso"))
-        .andExpect(jsonPath("$.commune").value("Viña del Mar"));
+        .andExpect(jsonPath("$.region").value("05"))
+        .andExpect(jsonPath("$.commune").value("05109"));
   }
 
   @Test
@@ -92,6 +91,19 @@ class ProfileAndSecurityIT {
                 .content("{\"photoUrl\":\"javascript:alert(1)\"}"))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("INVALID_PHOTO_URL"));
+  }
+
+  @Test
+  void profile_api_rejects_a_commune_outside_the_selected_region() throws Exception {
+    IdentityApiClient.Session session = api.signIn(api.activeAccount());
+
+    mvc.perform(
+            patch("/api/v1/me")
+                .header("Authorization", session.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"region\":\"05\",\"commune\":\"08101\"}"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("INVALID_COMMUNE"));
   }
 
   @Test

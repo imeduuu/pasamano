@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Set;
@@ -68,11 +69,12 @@ final class AuthDtos {
     }
   }
 
-  @Schema(description = "Campos a modificar; los ausentes no cambian y un texto vacío los borra")
+  @Schema(
+      description = "Campos a modificar; los ausentes no cambian y una ubicación vacía la borra")
   record UpdateProfileRequest(
       @Size(min = 2, max = 60, message = "El nombre debe tener entre 2 y 60 caracteres.") String name,
-      @Size(max = 60, message = "La región puede tener como máximo 60 caracteres.") String region,
-      @Size(max = 60, message = "La comuna puede tener como máximo 60 caracteres.") String commune,
+      @Pattern(regexp = "^$|^\\d{2}$", message = "Selecciona una región válida.") String region,
+      @Pattern(regexp = "^$|^\\d{5}$", message = "Selecciona una comuna válida.") String commune,
       @Size(max = 500, message = "La URL de la foto es demasiado larga.") String photoUrl) {}
 
   record ActivateSellerProfileRequest(

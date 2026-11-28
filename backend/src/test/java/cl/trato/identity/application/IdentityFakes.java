@@ -4,6 +4,7 @@ import cl.trato.identity.application.port.AccessTokenIssuer;
 import cl.trato.identity.application.port.ConsentRepository;
 import cl.trato.identity.application.port.OneTimeTokenRepository;
 import cl.trato.identity.application.port.PasswordHasher;
+import cl.trato.identity.application.port.ProfileLocationValidator;
 import cl.trato.identity.application.port.RefreshTokenRepository;
 import cl.trato.identity.application.port.SellerProfileRepository;
 import cl.trato.identity.application.port.TokenGenerator;
@@ -47,6 +48,10 @@ final class IdentityFakes {
   final MutableClock clock = new MutableClock(START);
   final InMemoryUsers users = new InMemoryUsers();
   final InMemorySellerProfiles sellerProfiles = new InMemorySellerProfiles();
+  final ProfileLocationValidator locations =
+      (region, commune) ->
+          (region.equals("05") && commune.equals("05109"))
+              || (region.equals("08") && commune.equals("08101"));
   final InMemoryConsents consents = new InMemoryConsents();
   final InMemoryOneTimeTokens oneTimeTokens = new InMemoryOneTimeTokens();
   final InMemoryRefreshTokens refreshTokens = new InMemoryRefreshTokens();
@@ -119,7 +124,7 @@ final class IdentityFakes {
   }
 
   UpdateProfile updateProfile() {
-    return new UpdateProfile(users, sellerProfiles, clock);
+    return new UpdateProfile(users, sellerProfiles, locations, clock);
   }
 
   ChangePassword changePassword() {

@@ -165,8 +165,11 @@ public class IdentityConfiguration {
 
   @Bean
   UpdateProfile updateProfile(
-      UserRepository users, SellerProfileRepository sellerProfiles, Clock clock) {
-    return new UpdateProfile(users, sellerProfiles, clock);
+      UserRepository users,
+      SellerProfileRepository sellerProfiles,
+      cl.trato.identity.application.port.ProfileLocationValidator locations,
+      Clock clock) {
+    return new UpdateProfile(users, sellerProfiles, locations, clock);
   }
 
   @Bean

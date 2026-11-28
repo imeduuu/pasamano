@@ -43,17 +43,15 @@ class ProfileUseCasesTest {
     User user = fakes.activeUser("ana@ejemplo.cl");
     fakes.clock.advance(Duration.ofMinutes(1));
 
-    fakes
-        .updateProfile()
-        .execute(new UpdateProfileCommand(user.id(), null, "Valparaíso", "Viña del Mar", null));
+    fakes.updateProfile().execute(new UpdateProfileCommand(user.id(), null, "05", "05109", null));
     UserProfileView view =
         fakes
             .updateProfile()
             .execute(new UpdateProfileCommand(user.id(), "Ana P.", null, null, null));
 
     assertThat(view.name()).isEqualTo("Ana P.");
-    assertThat(view.region()).isEqualTo("Valparaíso");
-    assertThat(view.commune()).isEqualTo("Viña del Mar");
+    assertThat(view.region()).isEqualTo("05");
+    assertThat(view.commune()).isEqualTo("05109");
     assertThat(fakes.users.findById(user.id()).orElseThrow().updatedAt())
         .isEqualTo(fakes.clock.instant());
   }
@@ -65,7 +63,7 @@ class ProfileUseCasesTest {
         .updateProfile()
         .execute(
             new UpdateProfileCommand(
-                user.id(), null, "Biobío", "Concepción", "https://img.ejemplo.cl/a.png"));
+                user.id(), null, "08", "08101", "https://img.ejemplo.cl/a.png"));
 
     UserProfileView view =
         fakes.updateProfile().execute(new UpdateProfileCommand(user.id(), null, "", "", ""));
@@ -91,6 +89,18 @@ class ProfileUseCasesTest {
                 .execute(new UpdateProfileCommand(user.id(), null, null, null, "javascript:x")))
         .extracting("code")
         .isEqualTo("INVALID_PHOTO_URL");
+  }
+
+  @Test
+  void rejects_a_commune_that_does_not_belong_to_the_selected_region() {
+    User user = fakes.activeUser("ana@ejemplo.cl");
+    assertThatThrownBy(() ->
+            fakes
+                .updateProfile()
+                .execute(new UpdateProfileCommand(user.id(), null, "05", "08101", null)))
+        .extracting("code")
+        .isEqualTo("INVALID_COMMUNE");
+    assertThat(fakes.users.saves).isEqualTo(1);
   }
 
   @Test

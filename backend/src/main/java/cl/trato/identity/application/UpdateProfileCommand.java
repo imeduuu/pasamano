@@ -8,8 +8,8 @@ import cl.trato.identity.domain.UserId;
  *
  * @param userId usuario autenticado
  * @param name nuevo nombre visible o {@code null}
- * @param region nueva región, vacío para borrar o {@code null}
- * @param commune nueva comuna, vacío para borrar o {@code null}
+ * @param region nuevo código CUT regional, vacío para borrar la ubicación o {@code null}
+ * @param commune nuevo código CUT comunal, vacío para borrar la ubicación o {@code null}
  * @param photoUrl nueva URL de foto, vacío para borrar o {@code null}
  */
 public record UpdateProfileCommand(

@@ -34,38 +34,46 @@
 
     <div class="field">
       <label for="profile-region">Región</label>
-      <input
+      <select
         id="profile-region"
-        type="text"
         formControlName="region"
-        autocomplete="address-level1"
+        (change)="selectRegion($any($event.target).value)"
         [attr.aria-invalid]="showError(profileForm.controls.region)"
         [attr.aria-describedby]="
           showError(profileForm.controls.region) ? 'profile-region-error' : null
         "
-      />
+      >
+        <option value="">Selecciona una región</option>
+        @for (region of regions(); track region.code) {
+          <option [value]="region.code">{{ region.name }}</option>
+        }
+      </select>
       @if (showError(profileForm.controls.region)) {
         <p class="field-error" id="profile-region-error">
-          {{ errorMessage(profileForm.controls.region, messages.region) }}
+          {{ errorMessage(profileForm.controls.region, {}) }}
         </p>
       }
     </div>
 
     <div class="field">
       <label for="profile-commune">Comuna</label>
-      <input
+      <select
         id="profile-commune"
-        type="text"
         formControlName="commune"
-        autocomplete="address-level2"
+        [disabled]="!regionCode()"
         [attr.aria-invalid]="showError(profileForm.controls.commune)"
         [attr.aria-describedby]="
           showError(profileForm.controls.commune) ? 'profile-commune-error' : null
         "
-      />
+      >
+        <option value="">Selecciona una comuna</option>
+        @for (commune of communes; track commune.code) {
+          <option [value]="commune.code">{{ commune.name }}</option>
+        }
+      </select>
       @if (showError(profileForm.controls.commune)) {
         <p class="field-error" id="profile-commune-error">
-          {{ errorMessage(profileForm.controls.commune, messages.commune) }}
+          {{ errorMessage(profileForm.controls.commune, {}) }}
         </p>
       }
     </div>
