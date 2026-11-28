@@ -4,17 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpParams } from '@angular/common/http';
 import { ApiClient } from '../../core/http/api-client';
 import { toProblem } from '../../core/http/problem';
+import { ListingCard, ListingCardModel } from '../../shared/listing-card';
 
-interface SearchListing {
-  id: string;
-  title: string;
-  price: number;
-  thumbnail: string | null;
-  region: string;
-  commune: string;
-  storeName: string;
-  reputation: string;
-}
+type SearchListing = ListingCardModel;
 
 interface SearchResponse {
   results: SearchListing[];
@@ -36,6 +28,7 @@ interface Region {
 /** BÃºsqueda compartible del catÃ¡logo (HU-12, CU-04). */
 @Component({
   selector: 'app-search-page',
+  imports: [ListingCard],
   template: `
     <section class="search-page" aria-labelledby="search-title">
       <h1 #heading id="search-title" tabindex="-1">Buscar publicaciones</h1>
@@ -173,21 +166,7 @@ interface Region {
             @if (data.results.length) {
               <div class="cards">
                 @for (item of data.results; track item.id) {
-                  <a class="card" [href]="'/producto/' + item.id">
-                    @if (item.thumbnail) {
-                      <img [src]="item.thumbnail" [alt]="item.title" />
-                    } @else {
-                      <div class="no-image" role="img" aria-label="PublicaciÃ³n sin imagen">
-                        Sin imagen
-                      </div>
-                    }
-                    <div class="card-content">
-                      <h2>{{ item.title }}</h2>
-                      <p class="price">{{ priceLabel(item.price) }}</p>
-                      <p>{{ item.region }} Â· {{ item.commune }}</p>
-                      <p class="seller">{{ item.storeName }} Â· {{ item.reputation }}</p>
-                    </div>
-                  </a>
+                  <app-listing-card [listing]="item" />
                 }
               </div>
               @if (data.totalPages > 1) {

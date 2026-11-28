@@ -58,7 +58,7 @@ describe('BÃºsqueda de publicaciones (HU-12/HU-13, CU-04 4a)', () => {
     expect(root.querySelector('[role="search"]')).toBeTruthy();
     expect(root.querySelector('[aria-live="polite"]')?.textContent).toContain('21 resultados');
     expect(root.textContent).toContain('$25.990');
-    expect(root.textContent).toContain('RegiÃ³n Metropolitana Â· Santiago');
+    expect(root.textContent).toContain('RegiÃ³n Metropolitana · Santiago');
     expect(root.textContent).toContain('4.8 (12 reseÃ±as)');
   });
 

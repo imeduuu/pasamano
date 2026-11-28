@@ -84,6 +84,7 @@ HU-07, HU-08, HU-09 y HU-10 están implementadas. Las pruebas de backend, fronte
 
 | 53 | Normalización de criterios de búsqueda (CU-04) | Cuando el precio mínimo supera al máximo, se eliminan ambos límites; una página negativa se normaliza a 0 sin agregar un ajuste. | CU-04 disponible indica que deben aplicarse valores por defecto e informarse los ajustes, pero no determina si se conserva uno de los límites ni el tratamiento de una página negativa. | Resuelta |
 | 54 | Filtro de reputación antes de tener reseñas (RF-BUS-03) | Si llega `minRating`, se excluyen todos los vendedores con reputación "Vendedor nuevo". | Aún no existen calificaciones persistidas para calcular un promedio verificable; no se asume una puntuación para esos vendedores. | Resuelta |
+| 55 | Antigüedad en perfil público (HU-14) | Calcular la antigüedad desde `activatedAt` en meses o años; durante el primer mes mostrar "Vendedor nuevo". | El SRS pide mostrar la antigüedad, pero no define unidad ni umbral para la etiqueta de vendedor nuevo. | Resuelta |
 
 ## Abiertas
 
