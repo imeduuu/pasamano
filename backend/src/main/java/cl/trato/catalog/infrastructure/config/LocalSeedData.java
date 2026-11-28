@@ -117,7 +117,10 @@ class LocalSeedData {
             sellers.get(faker.number().numberBetween(0, sellers.size())),
             "ACTIVA"
           });
-      listingImages.add(new Object[] {UUID.randomUUID(), listingId, 0, images.originalKey()});
+      listingImages.add(
+          new Object[] {
+            UUID.randomUUID(), listingId, 0, images.originalKey(), images.thumbnailKey()
+          });
     }
     jdbc.batchUpdate(
         "insert into listings (id,title,description,price,stock_total,stock_reserved,condition,"
@@ -125,7 +128,7 @@ class LocalSeedData {
             + "values (?,?,?,?,?,?,?,?,?,?,?,?)",
         listings);
     jdbc.batchUpdate(
-        "insert into listing_images (id,listing_id,position,image_reference) values (?,?,?,?)",
+        "insert into listing_images (id,listing_id,position,image_reference,thumbnail_reference) values (?,?,?,?,?)",
         listingImages);
   }
 

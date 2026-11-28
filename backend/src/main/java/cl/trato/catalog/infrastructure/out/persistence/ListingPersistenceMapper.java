@@ -40,6 +40,9 @@ class ListingPersistenceMapper {
       }
       image.setPosition(index);
       image.setImageReference(listing.images().get(index));
+      if (image.getThumbnailReference() == null) {
+        image.setThumbnailReference(listing.images().get(index));
+      }
     }
     while (images.size() > listing.images().size()) {
       images.remove(images.size() - 1);

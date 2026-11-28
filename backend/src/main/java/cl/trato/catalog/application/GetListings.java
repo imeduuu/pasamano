@@ -1,6 +1,7 @@
 package cl.trato.catalog.application;
 
 import cl.trato.catalog.application.port.ImageStorage;
+import cl.trato.catalog.application.port.ListingImages;
 import cl.trato.catalog.application.port.ListingRepository;
 import cl.trato.catalog.domain.Listing;
 import cl.trato.catalog.domain.ListingStatus;
@@ -37,12 +38,17 @@ public class GetListings {
   private final ListingRepository listings;
   private final SellerProfileRepository sellers;
   private final ImageStorage images;
+  private final ListingImages listingImages;
 
   public GetListings(
-      ListingRepository listings, SellerProfileRepository sellers, ImageStorage images) {
+      ListingRepository listings,
+      SellerProfileRepository sellers,
+      ImageStorage images,
+      ListingImages listingImages) {
     this.listings = listings;
     this.sellers = sellers;
     this.images = images;
+    this.listingImages = listingImages;
   }
 
   @Transactional(readOnly = true)
@@ -89,14 +95,10 @@ public class GetListings {
         l.seller().value().toString(),
         storeName,
         "Vendedor nuevo",
-        l.images().stream()
-            .map(key -> new ImageView(images.getUrl(key), images.getUrl(thumbnailKey(key))))
+        listingImages.findForListing(l.id()).stream()
+            .map(image ->
+                new ImageView(images.getUrl(image.key()), images.getUrl(image.thumbnailKey())))
             .toList());
-  }
-
-  private static String thumbnailKey(String key) {
-    int dot = key.lastIndexOf('.');
-    return dot < 0 ? key + "-thumb" : key.substring(0, dot) + "-thumb" + key.substring(dot);
   }
 
   private static ResourceNotFoundException notFound() {

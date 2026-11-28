@@ -179,11 +179,12 @@ class ListingsApiIT {
     MvcResult created = createListing(body());
     UUID id = listingId(created);
     jdbc.update(
-        "insert into listing_images(id,listing_id,position,image_reference) values (?,?,?,?)",
+        "insert into listing_images(id,listing_id,position,image_reference,thumbnail_reference) values (?,?,?,?,?)",
         UUID.randomUUID(),
         id,
         0,
-        "listings/test/imagen.jpg");
+        "listings/test/imagen.jpg",
+        "custom/thumb-image.webp");
 
     MvcResult published =
         transition("publish", id, "\"0\"")
@@ -231,11 +232,12 @@ class ListingsApiIT {
       throws Exception {
     UUID id = listingId(createListing(body()));
     jdbc.update(
-        "insert into listing_images(id,listing_id,position,image_reference) values (?,?,?,?)",
+        "insert into listing_images(id,listing_id,position,image_reference,thumbnail_reference) values (?,?,?,?,?)",
         UUID.randomUUID(),
         id,
         0,
-        "listings/test/foto.jpg");
+        "listings/test/foto.jpg",
+        "listings/custom/foto-preview.avif");
     String detail = "/api/v1/listings/" + id;
 
     mvc.perform(get(detail)).andExpect(status().isNotFound());
@@ -246,6 +248,7 @@ class ListingsApiIT {
         .andExpect(jsonPath("$.reputation").value("Vendedor nuevo"))
         .andExpect(jsonPath("$.images[0].url").exists())
         .andExpect(jsonPath("$.images[0].thumbnailUrl").exists());
+    org.mockito.Mockito.verify(imageStorage).getUrl("listings/custom/foto-preview.avif");
 
     Session stranger =
         createSeller(
@@ -282,11 +285,12 @@ class ListingsApiIT {
 
     UUID soldOutId = listingId(createListing(body().replace("\"stock\":2", "\"stock\":0")));
     jdbc.update(
-        "insert into listing_images(id,listing_id,position,image_reference) values (?,?,?,?)",
+        "insert into listing_images(id,listing_id,position,image_reference,thumbnail_reference) values (?,?,?,?,?)",
         UUID.randomUUID(),
         soldOutId,
         0,
-        "listings/test/agotada.jpg");
+        "listings/test/agotada.jpg",
+        "listings/test/agotada-thumb.jpg");
     MvcResult soldOut =
         transition("publish", soldOutId, "\"0\"")
             .andExpect(status().isOk())

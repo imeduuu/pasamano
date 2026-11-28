@@ -36,11 +36,11 @@ public class ManageListingImages {
     }
     ImageProcessor.ProcessedImage processed = processor.process(filename, content);
     String key = "listings/" + listingId + "/" + UUID.randomUUID() + ".jpg";
-    String thumbnail = thumbnailKey(key);
+    String thumbnail = "listings/" + listingId + "/" + UUID.randomUUID() + ".jpg";
     try {
       storage.store(key, processed.original(), processed.contentType());
       storage.store(thumbnail, processed.thumbnail(), processed.contentType());
-      return images.add(listing.id(), key);
+      return images.add(listing.id(), key, thumbnail);
     } catch (RuntimeException exception) {
       deleteQuietly(thumbnail);
       deleteQuietly(key);
@@ -51,9 +51,9 @@ public class ManageListingImages {
   @Transactional
   public void remove(UserId user, UUID listingId, UUID imageId) {
     listings.getOwned(user, listingId);
-    String key = images.remove(listingId, imageId);
-    storage.deleteAfterCommit(key);
-    storage.deleteAfterCommit(thumbnailKey(key));
+    ListingImages.Reference image = images.remove(listingId, imageId);
+    storage.deleteAfterCommit(image.key());
+    storage.deleteAfterCommit(image.thumbnailKey());
   }
 
   @Transactional
@@ -73,10 +73,6 @@ public class ManageListingImages {
     } catch (RuntimeException ignored) {
       // Se conserva el error original; los adaptadores S3 hacen idempotente el borrado.
     }
-  }
-
-  private static String thumbnailKey(String key) {
-    return key.substring(0, key.length() - 4) + "-thumb.jpg";
   }
 
   private static DomainValidationException invalid(String message) {

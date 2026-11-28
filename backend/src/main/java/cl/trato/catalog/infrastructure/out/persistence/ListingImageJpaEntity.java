@@ -25,6 +25,9 @@ public class ListingImageJpaEntity {
   @Column(name = "image_reference", nullable = false, length = 500)
   private String imageReference;
 
+  @Column(name = "thumbnail_reference", nullable = false, length = 500)
+  private String thumbnailReference;
+
   public UUID getId() {
     return id;
   }
@@ -55,5 +58,13 @@ public class ListingImageJpaEntity {
 
   public void setImageReference(String imageReference) {
     this.imageReference = imageReference;
+  }
+
+  public String getThumbnailReference() {
+    return thumbnailReference;
+  }
+
+  public void setThumbnailReference(String thumbnailReference) {
+    this.thumbnailReference = thumbnailReference;
   }
 }

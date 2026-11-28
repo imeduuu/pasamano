@@ -72,8 +72,11 @@ public class CatalogConfiguration {
 
   @Bean
   GetListings getListings(
-      ListingRepository listings, SellerProfileRepository sellers, ImageStorage images) {
-    return new GetListings(listings, sellers, images);
+      ListingRepository listings,
+      SellerProfileRepository sellers,
+      ImageStorage images,
+      ListingImages listingImages) {
+    return new GetListings(listings, sellers, images, listingImages);
   }
 
   @Bean

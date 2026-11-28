@@ -26,7 +26,14 @@ class JpaListingImagesAdapter implements ListingImages {
   }
 
   @Override
-  public UUID add(UUID listingId, String key) {
+  public List<Reference> findForListing(UUID listingId) {
+    return images.findForListing(listingId).stream()
+        .map(image -> new Reference(image.getImageReference(), image.getThumbnailReference()))
+        .toList();
+  }
+
+  @Override
+  public UUID add(UUID listingId, String key, String thumbnailKey) {
     ListingJpaEntity listing =
         listings.findById(listingId).orElseThrow(JpaListingImagesAdapter::notFound);
     int position = images.findForListing(listingId).size();
@@ -35,16 +42,18 @@ class JpaListingImagesAdapter implements ListingImages {
     image.setListing(listing);
     image.setPosition(position);
     image.setImageReference(key);
+    image.setThumbnailReference(thumbnailKey);
     return images.saveAndFlush(image).getId();
   }
 
   @Override
-  public String remove(UUID listingId, UUID imageId) {
+  public Reference remove(UUID listingId, UUID imageId) {
     ListingImageJpaEntity targetImage =
         images
             .findForListingById(imageId, listingId)
             .orElseThrow(JpaListingImagesAdapter::notFound);
-    String key = targetImage.getImageReference();
+    Reference reference =
+        new Reference(targetImage.getImageReference(), targetImage.getThumbnailReference());
     int removedPosition = targetImage.getPosition();
     images.deleteForListingById(imageId, listingId);
     images.flush();
@@ -57,7 +66,7 @@ class JpaListingImagesAdapter implements ListingImages {
         .filter(image -> image.getPosition() > removedPosition + 8)
         .forEach(image -> image.setPosition(image.getPosition() - 9));
     images.flush();
-    return key;
+    return reference;
   }
 
   @Override

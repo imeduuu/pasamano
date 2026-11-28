@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import cl.trato.catalog.application.port.CategoryRepository;
+import cl.trato.catalog.application.port.ListingImages;
 import cl.trato.catalog.application.port.ListingRepository;
 import cl.trato.catalog.domain.Category;
 import cl.trato.catalog.domain.Listing;
@@ -25,6 +26,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 @IntegrationTest
 class ListingPersistenceIT {
   @Autowired ListingRepository listings;
+  @Autowired ListingImages listingImages;
   @Autowired CategoryRepository categories;
   @Autowired UserRepository users;
 
@@ -69,6 +71,17 @@ class ListingPersistenceIT {
     assertThat(loaded.images())
         .containsExactly("minio/listing/front.jpg", "minio/listing/back.jpg");
     assertThat(loaded.version()).isZero();
+  }
+
+  @Test
+  void stores_original_and_thumbnail_references_for_uploaded_images() {
+    Listing listing = listings.save(newListing(2));
+
+    listingImages.add(listing.id(), "images/original.webp", "images/previews/custom.avif");
+
+    assertThat(listingImages.findForListing(listing.id()))
+        .containsExactly(
+            new ListingImages.Reference("images/original.webp", "images/previews/custom.avif"));
   }
 
   @Test
