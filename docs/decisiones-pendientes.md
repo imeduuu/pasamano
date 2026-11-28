@@ -82,6 +82,8 @@ HU-07, HU-08, HU-09 y HU-10 están implementadas. Las pruebas de backend, fronte
 
 | 52 | Fecha de publicaciÃ³n para bÃºsqueda (HU-12, ADR-004) | Agregar `listings.published_at` nullable e indexarla; su escritura al publicar queda a cargo del flujo de publicaciÃ³n. | El esquema no guardaba esta fecha y asignarla retroactivamente habrÃ­a inventado fechas para borradores y publicaciones antiguas. | Abierta |
 
+| 53 | Normalización de criterios de búsqueda (CU-04) | Cuando el precio mínimo supera al máximo, se eliminan ambos límites; una página negativa se normaliza a 0 sin agregar un ajuste. | CU-04 disponible indica que deben aplicarse valores por defecto e informarse los ajustes, pero no determina si se conserva uno de los límites ni el tratamiento de una página negativa. | Resuelta |
+
 ## Abiertas
 
 - **#25:** Textos legales definitivos (RNF-LEG-01).
