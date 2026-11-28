@@ -129,6 +129,26 @@ class CartApiIT {
   }
 
   @Test
+  void adds_a_second_listing_to_an_existing_cart() throws Exception {
+    UUID first = listing(2);
+    UUID second = listing(2);
+
+    mvc.perform(
+            put("/api/v1/cart/items/" + first)
+                .header("Authorization", buyer.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"quantity\":1}"))
+        .andExpect(status().isOk());
+    mvc.perform(
+            put("/api/v1/cart/items/" + second)
+                .header("Authorization", buyer.bearer())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"quantity\":1}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.sellers[0].items.length()").value(2));
+  }
+
+  @Test
   void unavailable_items_are_marked_and_excluded_from_total() throws Exception {
     UUID id = listing(2);
     mvc.perform(

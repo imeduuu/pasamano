@@ -31,6 +31,7 @@ class JpaCartRepositoryAdapter implements CartRepository {
     CartJpaEntity entity = jpa.findById(cart.buyerId().value()).orElseGet(CartJpaEntity::new);
     entity.setBuyerId(cart.buyerId().value());
     entity.getItems().clear();
+    jpa.flush();
     for (CartItem item : cart.items()) {
       CartItemJpaEntity row = new CartItemJpaEntity();
       row.setId(UUID.randomUUID());
