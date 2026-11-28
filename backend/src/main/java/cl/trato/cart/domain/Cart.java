@@ -36,41 +36,67 @@ public final class Cart {
   }
 
   /** Agrega o acumula unidades usando el precio vigente al primer agregado; RN-02. */
-  public void add(Listing listing, int quantity) {
-    Objects.requireNonNull(listing, "listing");
-    if (listing.seller().equals(buyerId)) {
-      throw new BusinessRuleViolationException(
-          "CART_OWN_LISTING", "No puedes agregar una publicación propia (RN-02).");
-    }
-    if (listing.status() != ListingStatus.ACTIVA) {
-      throw new BusinessRuleViolationException(
-          "CART_LISTING_NOT_ACTIVE", "Solo puedes agregar publicaciones activas.");
+  public void add(
+      UUID listingId, String title, UserId seller, int stock, Money price, int quantity) {
+    Objects.requireNonNull(listingId, "listingId");
+    Objects.requireNonNull(title, "title");
+    Objects.requireNonNull(seller, "seller");
+    Objects.requireNonNull(price, "price");
+    if (seller.equals(buyerId)) {
+      throw new OwnListingException();
     }
     if (quantity <= 0) {
       throw new BusinessRuleViolationException(
           "CART_INVALID_QUANTITY", "La cantidad debe ser positiva.");
     }
-    CartItem existing = items.get(listing.id());
+    CartItem existing = items.get(listingId);
+    int requested = quantity;
+    if (requested > stock) {
+      throw new CartQuantityExceededException(stock);
+    }
+    if (existing == null) {
+      items.put(listingId, new CartItem(listingId, title, seller, quantity, price));
+    } else {
+      items.put(
+          listingId,
+          new CartItem(
+              listingId, existing.title(), existing.sellerId(), requested, existing.unitPrice()));
+    }
+  }
+
+  /**
+   * Camino de dominio acumulativo usado por CU-05; HU-15 PUT reemplaza por medio del caso de uso.
+   */
+  public void add(Listing listing, int quantity) {
+    Objects.requireNonNull(listing, "listing");
+    if (listing.seller().equals(buyerId)) {
+      throw new OwnListingException();
+    }
+    if (listing.status() != ListingStatus.ACTIVA) {
+      throw new ListingUnavailableException();
+    }
+    CartItem old = items.get(listing.id());
     int requested;
     try {
-      requested = Math.addExact(existing == null ? 0 : existing.quantity(), quantity);
+      requested = Math.addExact(old == null ? 0 : old.quantity(), quantity);
     } catch (ArithmeticException exception) {
       throw new CartQuantityExceededException(listing.availableStock());
     }
-    if (requested > listing.availableStock()) {
-      throw new CartQuantityExceededException(listing.availableStock());
-    }
-    if (existing == null) {
-      items.put(
-          listing.id(),
-          new CartItem(listing.id(), listing.title(), listing.seller(), quantity, listing.price()));
-    } else {
-      items.put(listing.id(), existing.withQuantity(requested));
-    }
+    add(
+        listing.id(),
+        listing.title(),
+        listing.seller(),
+        listing.availableStock(),
+        listing.price(),
+        requested);
   }
 
   public List<CartItem> items() {
     return List.copyOf(new ArrayList<>(items.values()));
+  }
+
+  public void remove(UUID listingId) {
+    items.remove(listingId);
   }
 
   /** Agrupa importes por vendedor, preservando el orden del primer agregado. */

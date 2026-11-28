@@ -1,5 +1,6 @@
 package cl.trato.shared.infrastructure.web;
 
+import cl.trato.cart.domain.CartQuantityExceededException;
 import cl.trato.shared.domain.exception.DomainException;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     LOG.debug("Error de dominio {}: {}", ex.code(), ex.getMessage());
     return ResponseEntity.status(status)
         .body(ProblemDetails.of(status, ex.code(), ex.getMessage()));
+  }
+
+  @ExceptionHandler(CartQuantityExceededException.class)
+  public ResponseEntity<ProblemDetail> handleInsufficientStock(CartQuantityExceededException ex) {
+    ProblemDetail problem = ProblemDetails.of(HttpStatus.CONFLICT, ex.code(), ex.getMessage());
+    problem.setProperty("maximumAvailable", ex.maximum());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
   }
 
   @ExceptionHandler(AuthenticationException.class)
