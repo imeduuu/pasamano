@@ -2,6 +2,7 @@ package cl.trato.catalog.infrastructure.config;
 
 import cl.trato.catalog.application.port.ImageStorage;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -156,15 +157,15 @@ class LocalSeedData {
       String name = faker.name().fullName();
       String store = "Tienda Trato " + (index + 1);
       jdbc.update(
-          "insert into users (id,email,password_hash,name,status,region,commune,"
+          "insert into users (id,email,password_hash,name,status,"
               + "failed_login_attempts,created_at,updated_at) "
-              + "values (?,?,?,?,'ACTIVE','Metropolitana de Santiago','Santiago',0,?,?) on conflict (id) do nothing",
+              + "values (?,?,?,?,'ACTIVE',0,?,?) on conflict (id) do nothing",
           id,
           "seed-vendedor-" + index + "@trato.local",
           "!seed-no-login",
           name.length() > 60 ? name.substring(0, 60) : name,
-          now,
-          now);
+          Timestamp.from(now),
+          Timestamp.from(now));
       jdbc.update(
           "insert into user_roles (user_id,role) values (?,'USER') on conflict do nothing", id);
       jdbc.update(
@@ -174,7 +175,7 @@ class LocalSeedData {
           store,
           store.toLowerCase(Locale.ROOT),
           termsVersion,
-          now);
+          Timestamp.from(now));
       sellers.add(id);
     }
     return sellers;

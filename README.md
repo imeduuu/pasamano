@@ -155,6 +155,38 @@ categoría hoja. Las imágenes son marcadores SVG generados en el backend y guar
 no se descarga contenido externo. El valor predeterminado es `0`, y los datos semilla solo se
 habilitan con el perfil `local`.
 
+### Prueba de carga de búsqueda
+
+Requiere Docker Compose, Docker y el backend local con las 10.000 publicaciones del seed de la
+decisión [#43](docs/decisiones-pendientes.md). Con los servicios de infraestructura levantados,
+inicia el backend desde `backend/`:
+
+```powershell
+docker compose up -d
+$env:SEED_LISTINGS = "10000"
+$env:API_RATE_LIMIT_PER_MINUTE = "100000"
+.\mvnw.cmd spring-boot:run
+```
+
+En otra terminal PowerShell, desde la raíz del repositorio, ejecuta k6 en Docker (sin instalarlo):
+
+```powershell
+docker run --rm -i -e BASE_URL=http://host.docker.internal:8080 -v "${PWD}/perf:/scripts:ro" grafana/k6 run /scripts/search.js
+```
+
+El escenario simula 50 usuarios durante un minuto con consultas variadas por texto, precio,
+condición, región, orden y página. El umbral de aceptación para `http_req_duration` es
+**p95 < 500 ms** (RNF-REN-02); k6 devuelve un código distinto de cero si se incumple. La métrica
+incluye el tiempo HTTP observado por el generador, incluido el transporte de red local.
+El límite de peticiones local se eleva durante la prueba para que 50 usuarios desde una sola IP
+no midan el limitador global en lugar de la búsqueda.
+
+La corrida local realizada con 10.000 publicaciones y 50 usuarios obtuvo **p95 = 683 ms**;
+no alcanzó el umbral. `EXPLAIN ANALYZE` mostró que el filtro por región y condición leía 646
+bloques y tardaba 10,6 ms; el índice compuesto añadido redujo ese plan a 4,4 ms. La latencia
+global bajo concurrencia sigue por encima del objetivo y debe volver a medirse en el entorno de
+referencia de rendimiento.
+
 ## Pruebas
 
 ```bash
