@@ -86,6 +86,8 @@ HU-07, HU-08, HU-09 y HU-10 están implementadas. Las pruebas de backend, fronte
 | 54 | Filtro de reputación antes de tener reseñas (RF-BUS-03) | Si llega `minRating`, se excluyen todos los vendedores con reputación "Vendedor nuevo". | Aún no existen calificaciones persistidas para calcular un promedio verificable; no se asume una puntuación para esos vendedores. | Resuelta |
 | 55 | Antigüedad en perfil público (HU-14) | Calcular la antigüedad desde `activatedAt` en meses o años; durante el primer mes mostrar "Vendedor nuevo". | El SRS pide mostrar la antigüedad, pero no define unidad ni umbral para la etiqueta de vendedor nuevo. | Resuelta |
 
+| 56 | Advertencias del carrito (HU-15, RF-CAR-04) | Comparar el precio actual con el precio unitario capturado al agregar; informar AGOTADA, PAUSADA o BLOQUEADA seg?n estado actual (agotada prevalece como su advertencia ?nica de estado); publicaciones sin cambio ni ?tem del carrito no generan advertencia. | El requisito enumera cambios de precio y estados no comprables, pero no define prioridad ni tratamiento de estados terminales restantes. | Resuelta |
+
 ## Abiertas
 
 - **#25:** Textos legales definitivos (RNF-LEG-01).
