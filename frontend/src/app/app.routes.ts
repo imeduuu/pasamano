@@ -13,6 +13,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/home/home-page').then((m) => m.HomePage),
       },
       {
+        path: 'buscar',
+        title: 'Buscar publicaciones · Trato',
+        loadComponent: () => import('./features/search/search-page').then((m) => m.SearchPage),
+      },
+      {
         path: 'producto/:id',
         loadComponent: () =>
           import('./features/catalog/listing-detail-page').then((m) => m.ListingDetailPage),

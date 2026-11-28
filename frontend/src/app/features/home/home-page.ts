@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
+import { SearchBox } from '../../shared/search-box';
 
 @Component({
   selector: 'app-home-page',
+  imports: [SearchBox],
   template: `
     <section class="hero" aria-labelledby="hero-title">
       <h1 id="hero-title">Compra y vende entre personas, sin capturas de pantalla.</h1>
@@ -9,6 +11,7 @@ import { Component } from '@angular/core';
         Publica con stock, paga con Webpay y sigue tu pedido hasta que llegue. La reputación se
         construye solo con compras reales.
       </p>
+      <app-search-box id="home-search" />
     </section>
   `,
   styles: `
