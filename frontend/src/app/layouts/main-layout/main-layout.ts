@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { CartService } from '../../features/cart/cart.service';
 import { SearchBox } from '../../shared/search-box';
 
 /** Layout principal: aviso de demostración, encabezado, contenido y pie (RNF-LEG-03). */
@@ -12,8 +13,19 @@ import { SearchBox } from '../../shared/search-box';
 })
 export class MainLayout {
   protected readonly auth = inject(AuthService);
+  protected readonly cart = inject(CartService);
   private readonly router = inject(Router);
   protected readonly year = new Date().getFullYear();
+
+  constructor() {
+    effect(() => {
+      if (this.auth.isAuthenticated()) {
+        this.cart.refresh().subscribe({ error: () => this.cart.clear() });
+      } else {
+        this.cart.clear();
+      }
+    });
+  }
 
   logout(): void {
     this.auth.logout().subscribe(() => void this.router.navigate(['/']));

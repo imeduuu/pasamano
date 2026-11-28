@@ -13,6 +13,14 @@
     <nav class="site-nav" aria-label="Principal">
       <ul>
         <li>
+          <a routerLink="/carrito" routerLinkActive="active" ariaCurrentWhenActive="page"
+            >Carrito
+            <span class="cart-count" [attr.aria-label]="cart.itemCount() + ' artículos'">{{
+              cart.itemCount()
+            }}</span></a
+          >
+        </li>
+        <li>
           <a
             routerLink="/"
             routerLinkActive="active"

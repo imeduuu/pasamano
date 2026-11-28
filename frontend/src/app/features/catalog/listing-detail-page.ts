@@ -1,9 +1,12 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiClient } from '../../core/http/api-client';
+import { AuthService } from '../../core/auth/auth.service';
+import { CartService } from '../cart/cart.service';
 import { toProblem } from '../../core/http/problem';
 
 interface ListingImage {
@@ -94,6 +97,30 @@ const CONDITIONS: Record<string, string> = {
             } @else {
               <p class="price">{{ priceLabel(item.price) }}</p>
               <p class="stock">{{ item.stock }} disponibles</p>
+            }
+            @if (canAddToCart(item)) {
+              <section class="purchase" aria-label="Agregar al carrito">
+                <label for="listing-quantity">Cantidad</label>
+                <select id="listing-quantity" [value]="quantity()" (change)="setQuantity($event)">
+                  @for (amount of stockOptions(item.stock); track amount) {
+                    <option [value]="amount">{{ amount }}</option>
+                  }
+                </select>
+                <button class="add-to-cart" type="button" (click)="addToCart(item)">
+                  Agregar al carrito
+                </button>
+                @if (cartMessage()) {
+                  <p role="status">{{ cartMessage() }}</p>
+                }
+                @if (maximumAvailable() !== null) {
+                  <p role="alert">Solo quedan {{ maximumAvailable() }} disponibles.</p>
+                  @if (maximumAvailable()! > 0) {
+                    <button type="button" class="maximum-button" (click)="addMaximum(item)">
+                      Agregar {{ maximumAvailable() }} disponibles
+                    </button>
+                  }
+                }
+              </section>
             }
             <dl class="details">
               <div>
@@ -229,6 +256,40 @@ const CONDITIONS: Record<string, string> = {
       color: #8f3028;
       font-weight: 700;
     }
+    .purchase {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      margin-block: 1.25rem;
+    }
+    .purchase label {
+      font-weight: 600;
+    }
+    .purchase select,
+    .add-to-cart,
+    .maximum-button {
+      min-height: 44px;
+      padding: 0.65rem 0.9rem;
+      border: 1px solid #145d52;
+      border-radius: 8px;
+      font: inherit;
+    }
+    .add-to-cart {
+      background: #145d52;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .maximum-button {
+      background: white;
+      color: #145d52;
+      cursor: pointer;
+    }
+    .purchase p {
+      flex-basis: 100%;
+      margin: 0;
+    }
     .details {
       display: grid;
       gap: 0.8rem;
@@ -303,6 +364,9 @@ const CONDITIONS: Record<string, string> = {
 export class ListingDetailPage {
   private readonly api = inject(ApiClient);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+  protected readonly cart = inject(CartService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
@@ -311,6 +375,9 @@ export class ListingDetailPage {
   protected readonly selectedImage = signal(0);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly quantity = signal(1);
+  protected readonly cartMessage = signal<string | null>(null);
+  protected readonly maximumAvailable = signal<number | null>(null);
 
   constructor() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -361,6 +428,52 @@ export class ListingDetailPage {
 
   protected unavailable(listing: Listing): boolean {
     return listing.status !== 'ACTIVA' || listing.stock <= 0;
+  }
+
+  protected canAddToCart(listing: Listing): boolean {
+    return !this.unavailable(listing) && this.auth.user()?.id !== listing.sellerId;
+  }
+
+  protected stockOptions(stock: number): number[] {
+    return Array.from({ length: Math.min(stock, 99) }, (_, index) => index + 1);
+  }
+
+  protected setQuantity(event: Event): void {
+    this.quantity.set(Number((event.target as HTMLSelectElement).value));
+    this.maximumAvailable.set(null);
+    this.cartMessage.set(null);
+  }
+
+  protected addToCart(listing: Listing): void {
+    if (!this.auth.isAuthenticated()) {
+      void this.router.navigate(['/ingresar'], {
+        queryParams: { returnUrl: `/producto/${listing.id}` },
+      });
+      return;
+    }
+    this.submitCartQuantity(listing, this.quantity());
+  }
+
+  protected addMaximum(listing: Listing): void {
+    const maximum = this.maximumAvailable();
+    if (maximum !== null && maximum > 0) this.submitCartQuantity(listing, maximum);
+  }
+
+  private submitCartQuantity(listing: Listing, quantity: number): void {
+    this.cartMessage.set(null);
+    this.maximumAvailable.set(null);
+    this.cart.put(listing.id, quantity).subscribe({
+      next: () => this.cartMessage.set('Se agregó al carrito.'),
+      error: (failure: unknown) => {
+        const problem = toProblem(failure);
+        this.cartMessage.set(problem.code === 'INSUFFICIENT_STOCK' ? null : problem.detail);
+        if (problem.code === 'INSUFFICIENT_STOCK') {
+          const errorBody = failure as { error?: { maximumAvailable?: unknown } };
+          const maximum = errorBody.error?.maximumAvailable;
+          this.maximumAvailable.set(typeof maximum === 'number' ? maximum : null);
+        }
+      },
+    });
   }
 
   protected regionName(): string {

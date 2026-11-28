@@ -37,6 +37,10 @@ export class ApiClient {
     return this.http.post<T>(this.url(path), body, options);
   }
 
+  put<T>(path: string, body: unknown, options: RequestOptions = {}): Observable<T> {
+    return this.http.put<T>(this.url(path), body, options);
+  }
+
   postResponse<T>(
     path: string,
     body: unknown = {},

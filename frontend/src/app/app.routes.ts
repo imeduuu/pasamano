@@ -23,6 +23,12 @@ export const routes: Routes = [
           import('./features/catalog/listing-detail-page').then((m) => m.ListingDetailPage),
       },
       {
+        path: 'carrito',
+        title: 'Carrito de compras · Trato',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/cart/cart-page').then((m) => m.CartPage),
+      },
+      {
         path: 'vendedores/:id',
         loadComponent: () =>
           import('./features/profile/public-seller-page').then((m) => m.PublicSellerPage),
