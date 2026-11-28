@@ -1,6 +1,7 @@
 package cl.trato.catalog.infrastructure.config;
 
 import cl.trato.catalog.application.GetCategories;
+import cl.trato.catalog.application.GetListingAvailability;
 import cl.trato.catalog.application.GetListings;
 import cl.trato.catalog.application.ManageCategories;
 import cl.trato.catalog.application.ManageListingImages;
@@ -77,6 +78,11 @@ public class CatalogConfiguration {
       ImageStorage images,
       ListingImages listingImages) {
     return new GetListings(listings, sellers, images, listingImages);
+  }
+
+  @Bean
+  GetListingAvailability getListingAvailability(ListingRepository listings) {
+    return new GetListingAvailability(listings);
   }
 
   @Bean

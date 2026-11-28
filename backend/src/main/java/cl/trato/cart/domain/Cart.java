@@ -22,6 +22,19 @@ public final class Cart {
     this.buyerId = Objects.requireNonNull(buyerId, "buyerId");
   }
 
+  /** Reconstruye el carrito y sus snapshots persistidos; RF-CAR-05. */
+  public static Cart rehydrate(UserId buyerId, List<CartItem> items) {
+    Cart cart = new Cart(buyerId);
+    for (CartItem item : items) {
+      cart.items.put(item.listingId(), Objects.requireNonNull(item, "item"));
+    }
+    return cart;
+  }
+
+  public UserId buyerId() {
+    return buyerId;
+  }
+
   /** Agrega o acumula unidades usando el precio vigente al primer agregado; RN-02. */
   public void add(Listing listing, int quantity) {
     Objects.requireNonNull(listing, "listing");
